@@ -1,6 +1,8 @@
 import { motion, useInView } from 'framer-motion';
 import { useRef, useState } from 'react';
 import { compounds } from '../data/compoundsData';
+import AcademicImage, { getCompoundImage } from './AcademicImage';
+import { IMAGES } from '../assets/images';
 
 interface Props { darkMode: boolean; }
 
@@ -28,6 +30,27 @@ export default function Block5Phytochemistry({ darkMode }: Props) {
           <p className={`text-lg ${darkMode ? 'text-[#4a7a2e]' : 'text-[#8B4513]'}`}>
             6 compostos anotados por CLAE-DAD-EM/EM
           </p>
+        </motion.div>
+
+        {/* Chromatograms */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={inView ? { opacity: 1, y: 0 } : {}}
+          transition={{ delay: 0.2 }}
+          className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12"
+        >
+          <AcademicImage
+            src={IMAGES.claeEEBHT}
+            alt="Cromatograma CLAE do EEB-HT (Trub Quente)"
+            caption="Figura 2a: Cromatograma EEB-HT — Picos anotados com m/z e tempos de retenção"
+            darkMode={darkMode}
+          />
+          <AcademicImage
+            src={IMAGES.claeEEBBM}
+            alt="Cromatograma CLAE do EEB-BM (Bagaço de Malte)"
+            caption="Figura 2b: Cromatograma EEB-BM — Picos anotados com m/z e tempos de retenção"
+            darkMode={darkMode}
+          />
         </motion.div>
 
         {/* Table */}
@@ -89,22 +112,35 @@ export default function Block5Phytochemistry({ darkMode }: Props) {
             className={`mt-6 p-6 rounded-2xl border ${darkMode ? 'bg-[#1a2b12]/80 border-[#D4A017]/30' : 'bg-white/80 border-[#D4A017]/30'}`}
           >
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Structure placeholder */}
+              {/* Structure image */}
               <div className="flex flex-col items-center justify-center p-4">
-                <div className={`w-48 h-48 rounded-xl border-2 border-dashed flex items-center justify-center ${darkMode ? 'border-[#2D5016]/50' : 'border-[#2D5016]/30'}`}>
-                  <div className="text-center">
-                    <div className="text-4xl mb-2">🧪</div>
-                    <div className={`text-xs font-mono ${darkMode ? 'text-[#4a7a2e]' : 'text-[#2D5016]/60'}`}>
-                      {compounds[selectedCompound].formula}
+                {(() => {
+                  const imageUrl = getCompoundImage(compounds[selectedCompound].name);
+                  if (imageUrl) {
+                    return (
+                      <AcademicImage
+                        src={imageUrl}
+                        alt={`Estrutura 2D de ${compounds[selectedCompound].name}`}
+                        caption={`${compounds[selectedCompound].name} — ${compounds[selectedCompound].formula} | m/z ${compounds[selectedCompound].mz}`}
+                        className="w-full max-w-sm"
+                        darkMode={darkMode}
+                      />
+                    );
+                  }
+                  return (
+                    <div className={`w-48 h-48 rounded-xl border-2 border-dashed flex items-center justify-center ${darkMode ? 'border-[#2D5016]/50' : 'border-[#2D5016]/30'}`}>
+                      <div className="text-center">
+                        <div className="text-4xl mb-2">🧪</div>
+                        <div className={`text-xs font-mono ${darkMode ? 'text-[#4a7a2e]' : 'text-[#2D5016]/60'}`}>
+                          {compounds[selectedCompound].formula}
+                        </div>
+                        <div className={`text-xs mt-1 ${darkMode ? 'text-[#D4A017]' : 'text-[#C68E17]'}`}>
+                          m/z {compounds[selectedCompound].mz}
+                        </div>
+                      </div>
                     </div>
-                    <div className={`text-xs mt-1 ${darkMode ? 'text-[#D4A017]' : 'text-[#C68E17]'}`}>
-                      m/z {compounds[selectedCompound].mz}
-                    </div>
-                  </div>
-                </div>
-                <p className={`text-xs mt-2 ${darkMode ? 'text-[#4a7a2e]' : 'text-[#2D5016]/50'}`}>
-                  Estrutura 2D simplificada
-                </p>
+                  );
+                })()}
               </div>
 
               {/* Fragmentation */}

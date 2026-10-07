@@ -1,5 +1,7 @@
 import { motion, useInView } from 'framer-motion';
 import { useRef, useState, useEffect } from 'react';
+import AcademicImage from './AcademicImage';
+import { IMAGES } from '../assets/images';
 
 interface Props { darkMode: boolean; }
 
@@ -86,7 +88,7 @@ export default function Block2Problem({ darkMode }: Props) {
           initial={{ opacity: 0, y: 30 }}
           animate={inView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.6 }}
-          className="text-center mb-16"
+          className="text-center mb-8"
         >
           <h2 className={`text-3xl md:text-4xl font-bold mb-4 ${darkMode ? 'text-[#F5E6C8]' : 'text-[#2D5016]'}`}>
             O Problema
@@ -94,6 +96,21 @@ export default function Block2Problem({ darkMode }: Props) {
           <p className={`text-lg ${darkMode ? 'text-[#4a7a2e]' : 'text-[#8B4513]'}`}>
             Resíduos cervejeiros: de passivo ambiental a bioinsumo
           </p>
+        </motion.div>
+
+        {/* Beer process image */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={inView ? { opacity: 1, y: 0 } : {}}
+          transition={{ delay: 0.3 }}
+          className="mb-12 max-w-3xl mx-auto"
+        >
+          <AcademicImage
+            src={IMAGES.processoCerveja}
+            alt="Processo de fabricação de cerveja"
+            caption="Figura 1: Etapas envolvidas na produção da cerveja (Adaptada de Anderson et al., 2019)"
+            darkMode={darkMode}
+          />
         </motion.div>
 
         {/* Cards */}
