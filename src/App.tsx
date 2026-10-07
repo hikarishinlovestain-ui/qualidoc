@@ -4,6 +4,7 @@ import Block1Cover from './components/Block1Cover';
 import Block2Problem from './components/Block2Problem';
 import Block3Hypotheses from './components/Block3Hypotheses';
 import Block4Methodology from './components/Block4Methodology';
+import BlockAraGEM from './components/BlockAraGEM';
 import Block5Phytochemistry from './components/Block5Phytochemistry';
 import Block6Curves from './components/Block6Curves';
 import Block7Antifungal from './components/Block7Antifungal';
@@ -15,6 +16,7 @@ const sections = [
   { id: 'problem', label: 'Problema' },
   { id: 'hypotheses', label: 'Hipóteses' },
   { id: 'methodology', label: 'Metodologia' },
+  { id: 'aragem', label: 'AraGEM' },
   { id: 'phytochemistry', label: 'Fitoquímica' },
   { id: 'curves', label: 'Curvas FBA' },
   { id: 'antifungal', label: 'Antifúngico' },
@@ -162,6 +164,7 @@ export default function App() {
         <Block2Problem darkMode={darkMode} />
         <Block3Hypotheses darkMode={darkMode} />
         <Block4Methodology darkMode={darkMode} />
+        <BlockAraGEM darkMode={darkMode} />
         <Block5Phytochemistry darkMode={darkMode} />
         <Block6Curves darkMode={darkMode} />
         <Block7Antifungal darkMode={darkMode} />
