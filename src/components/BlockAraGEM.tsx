@@ -223,7 +223,7 @@ export default function BlockAraGEM({ darkMode }: Props) {
               <h4 className={`font-semibold mb-4 ${darkMode ? 'text-[#D4A017]' : 'text-[#8B4513]'}`}>
                 Compostos Modelados
               </h4>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-3xl mx-auto">
                 {curadoriaData.compostos_modelados.map((comp, i) => (
                   <motion.div
                     key={i}
@@ -555,24 +555,13 @@ export default function BlockAraGEM({ darkMode }: Props) {
                       animationDuration={2000}
                       animationBegin={500}
                     />
-                    {/* Xantohumol */}
-                    <Line
-                      data={simulationResults.resultados["Xantohumol"].dados}
-                      dataKey="biomassa"
-                      name="Xantohumol (Inibição)"
-                      stroke="#8B4513"
-                      strokeWidth={2.5}
-                      dot={{ fill: '#8B4513', r: 3 }}
-                      isAnimationActive={true}
-                      animationDuration={2000}
-                      animationBegin={1000}
-                    />
+
                   </LineChart>
                 </ResponsiveContainer>
               </div>
 
               {/* Key findings */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-3xl mx-auto">
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -603,20 +592,7 @@ export default function BlockAraGEM({ darkMode }: Props) {
                   </div>
                 </motion.div>
 
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.9 }}
-                  className={`p-4 rounded-xl border-l-4 ${darkMode ? 'bg-[#8B4513]/10 border-[#8B4513]' : 'bg-[#8B4513]/5 border-[#8B4513]'}`}
-                >
-                  <div className="text-xs font-mono text-[#8B4513] mb-1">Xantohumol</div>
-                  <div className={`text-lg font-bold ${darkMode ? 'text-[#F5E6C8]' : 'text-[#2D5016]'}`}>
-                    IC₅₀ ≈ {simulationResults.resultados["Xantohumol"].IC50_aproximado} mg/L
-                  </div>
-                  <div className={`text-xs ${darkMode ? 'text-[#F5E6C8]/60' : 'text-[#8B4513]/80'}`}>
-                    {simulationResults.resultados["Xantohumol"].comportamento}
-                  </div>
-                </motion.div>
+
               </div>
 
               {/* Conclusion card */}

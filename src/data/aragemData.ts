@@ -106,12 +106,6 @@ export const curadoriaData = {
       vias_adicionadas: ["Transporte FAX1/FAX6", "Ativação LACS7", "β-oxidação peroxissomal", "Ciclo do glioxilato (ICL/MLS)", "Biossíntese de jasmonatos"],
       nota: "Hipótese de capacidade metabólica",
       cor: "#2D5016"
-    },
-    {
-      composto: "Xantohumol",
-      vias_adicionadas: ["Via dos fenilpropanoides", "Modulação do Complexo I (NDUFV1, NDUFS1, NDUFS7)"],
-      nota: "Tratado como modulador de capacidade, não substrato direto",
-      cor: "#8B4513"
     }
   ] as CompoundModel[]
 };
@@ -181,29 +175,12 @@ export const doseResponseModels: DoseResponseModel[] = [
       return 1.0 + (mm - 1.0) * (C / (C + p.K_m));
     }
   },
-  {
-    nome: "Xantohumol",
-    modelo: "Inibição Sigmoide (Hill)",
-    equacao: "f(C) = IC50^n / (IC50^n + C^n)",
-    equacaoLatex: "f(C) = IC₅₀ⁿ / (IC₅₀ⁿ + Cⁿ)",
-    parametros: {
-      IC50: { valor: 150, min: 50, max: 400, step: 5, label: "IC₅₀", descricao: "Concentração de inibição 50% (mg/L)" },
-      n: { valor: 2, min: 1, max: 5, step: 0.5, label: "n", descricao: "Coeficiente de Hill (cooperatividade)" }
-    },
-    comportamento: "Inibição gradual do Complexo I mitocondrial",
-    cor: "#8B4513",
-    funcao: (C: number, p: Record<string, number>) => {
-      const ic50n = Math.pow(p.IC50, p.n);
-      const cn = Math.pow(C, p.n);
-      return ic50n / (ic50n + cn);
-    }
-  }
 ];
 
 export const simulationResults = {
   passo: 5,
   titulo: "Resultados Preditivos da Simulação FBA",
-  total_cenarios: 804,
+  total_cenarios: 603,
   doses_simuladas: 201,
   faixa_concentracao: "0-1000 mg/L",
   resultados: {
@@ -244,22 +221,6 @@ export const simulationResults = {
         { dose: 750, biomassa: 1.06 },
         { dose: 800, biomassa: 1.061 },
         { dose: 1000, biomassa: 1.0625 }
-      ]
-    },
-    "Xantohumol": {
-      comportamento: "Inibição gradual do fluxo de biomassa",
-      IC50_aproximado: 150,
-      dados: [
-        { dose: 0, biomassa: 1.0 },
-        { dose: 25, biomassa: 0.985 },
-        { dose: 50, biomassa: 0.95 },
-        { dose: 75, biomassa: 0.9 },
-        { dose: 100, biomassa: 0.85 },
-        { dose: 150, biomassa: 0.5 },
-        { dose: 200, biomassa: 0.35 },
-        { dose: 300, biomassa: 0.15 },
-        { dose: 400, biomassa: 0.08 },
-        { dose: 500, biomassa: 0.05 }
       ]
     }
   }
