@@ -7,7 +7,7 @@ import Block4Methodology from './components/Block4Methodology';
 import BlockAraGEM from './components/BlockAraGEM';
 import Block5Phytochemistry from './components/Block5Phytochemistry';
 import Block6Curves from './components/Block6Curves';
-import Block7Antifungal from './components/Block7Antifungal';
+import BlockFungalGEM from './components/BlockFungalGEM';
 import Block8Timeline from './components/Block8Timeline';
 import Block9Conclusions from './components/Block9Conclusions';
 
@@ -19,7 +19,7 @@ const sections = [
   { id: 'aragem', label: 'AraGEM' },
   { id: 'phytochemistry', label: 'Fitoquímica' },
   { id: 'curves', label: 'Curvas FBA' },
-  { id: 'antifungal', label: 'Antifúngico' },
+  { id: 'fungal-gem', label: 'GEM Fúngico' },
   { id: 'timeline', label: 'Cronograma' },
   { id: 'conclusions', label: 'Conclusões' },
 ];
@@ -167,7 +167,7 @@ export default function App() {
         <BlockAraGEM darkMode={darkMode} />
         <Block5Phytochemistry darkMode={darkMode} />
         <Block6Curves darkMode={darkMode} />
-        <Block7Antifungal darkMode={darkMode} />
+        <BlockFungalGEM darkMode={darkMode} />
         <Block8Timeline darkMode={darkMode} />
         <Block9Conclusions darkMode={darkMode} />
       </main>
