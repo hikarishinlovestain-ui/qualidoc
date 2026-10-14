@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Painel de Qualificação — Modelagem Metabólica & Bioinsumos | Hikari Lima</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<script src="https://unpkg.com/framer-motion@10.16.4/dist/framer-motion.js"></script>
+<script src="https://unpkg.com/recharts@2.10.3/dist/Recharts.js"></script>
+<style>
+:root {
+  --font-sans: 'Inter', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  --color-leaf: #2D5016;
+  --color-gold: #D4A017;
+  --color-amber: #C68E17;
+  --color-cream: #F5E6C8;
+  --color-terracotta: #8B4513;
+}
+* { scrollbar-width: thin; scrollbar-color: #2D5016 transparent; }
+body { font-family: var(--font-sans); margin: 0; overflow-x: hidden; }
+html { scroll-behavior: smooth; }
+html.dark { background-color: #0a0f07; color: #F5E6C8; }
+html.light { background-color: #faf8f0; color: #1a1a1a; }
+
+@keyframes float { 0%, 100% { transform: translateY(0px) rotate(0deg); } 50% { transform: translateY(-20px) rotate(5deg); } }
+@keyframes pulse-glow { 0%, 100% { box-shadow: 0 0 5px rgba(212, 160, 23, 0.3); } 50% { box-shadow: 0 0 20px rgba(212, 160, 23, 0.8), 0 0 40px rgba(212, 160, 23, 0.4); } }
+@keyframes grain-fall { 0% { transform: translateY(-100vh) rotate(0deg); opacity: 1; } 100% { transform: translateY(100vh) rotate(720deg); opacity: 0; } }
+@keyframes molecule-rotate { 0% { transform: rotateY(0deg) rotateX(15deg); } 100% { transform: rotateY(360deg) rotateX(15deg); } }
+@keyframes dash-flow { 0% { stroke-dashoffset: 1000; } 100% { stroke-dashoffset: 0; } }
+
+.animate-float { animation: float 6s ease-in-out infinite; }
+.animate-pulse-glow { animation: pulse-glow 2s ease-in-out infinite; }
+.animate-molecule { animation: molecule-rotate 20s linear infinite; }
+.grain-particle { position: absolute; width: 4px; height: 8px; background: linear-gradient(135deg, #D4A017, #C68E17); border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%; animation: grain-fall linear infinite; }
+.molecule-bond { stroke-dasharray: 5 3; animation: dash-flow 2s linear infinite; }
+.nav-dot { transition: all 0.3s ease; }
+.nav-dot.active { transform: scale(1.5); background-color: #D4A017; box-shadow: 0 0 10px rgba(212, 160, 23, 0.5); }
+.card-hover { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+.card-hover:hover { transform: translateY(-4px) scale(1.02); box-shadow: 0 20px 40px rgba(45, 80, 22, 0.2); }
+.section-block { min-height: 100vh; position: relative; overflow: hidden; }
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #2D5016; border-radius: 4px; }
+</style>
+</head>
+<body class="dark">
+<div id="root"></div>
+
+<script type="text/babel" data-presets="react">
+const { useState, useEffect, useRef, useCallback } = React;
+const { motion, useInView, AnimatePresence } = window.FramerMotion || { motion: (props) => React.createElement('div', props), useInView: () => true, AnimatePresence: (props) => props.children };
+const { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine, Area, AreaChart, Legend } = window.Recharts || {};
+
+// ============ IMAGES ============
+const IMAGES = {
+  processoCerveja: "https://raw.githubusercontent.com/jungbluttdiedich-cyber/images/main/Processo%20de%20fabrica%C3%A7%C3%A3o%20de%20cerveja.jpg",
+  claeEEBHT: "https://raw.githubusercontent.com/jungbluttdiedich-cyber/images/main/CLAE%20EEBTQ.jpg",
+  claeEEBBM: "https://raw.githubusercontent.com/jungbluttdiedich-cyber/images/main/CLAE%20EEBBM.jpg",
+  xantohumol: "https://raw.githubusercontent.com/jungbluttdiedich-cyber/images/main/xanthohumol.png",
+  hordenina: "https://raw.githubusercontent.com/jungbluttdiedich-cyber/images/main/hordenine.png",
+  acidoLinoleico: "https://raw.githubusercontent.com/jungbluttdiedich-cyber/images/main/linoleic_acid.png",
+  erucamida: "https://raw.githubusercontent.com/jungbluttdiedich-cyber/images/main/erucamide.png",
+  anidridoFtalico: "https://raw.githubusercontent.com/jungbluttdiedich-cyber/images/main/phthalic_anhydride.png",
+  diterpenoide: "https://raw.githubusercontent.com/jungbluttdiedich-cyber/images/main/lambertianic_acid.png",
+  pelosRadiculares: "https://raw.githubusercontent.com/jungbluttdiedich-cyber/images/main/Compara%C3%A7%C3%A3o%20de%20radiculas.jpg",
+  controleCuSO4: "https://raw.githubusercontent.com/jungbluttdiedich-cyber/images/main/CuSO4%20esverdeado.jpg",
+};
+
+// ============ DATA ============
+const htDoses = [
+  { dose: 0, ivg: 1.0, root: 18.5, label: "Controle" },
+  { dose: 12.5, ivg: 1.35, root: 24.8, label: "12,5" },
+  { dose: 25, ivg: 1.22, root: 22.1, label: "25" },
+  { dose: 50, ivg: 0.85, root: 14.2, label: "50" },
+  { dose: 100, ivg: 0.52, root: 8.9, label: "100" },
+  { dose: 200, ivg: 0.28, root: 5.1, label: "200" },
+  { dose: 500, ivg: 0.12, root: 2.3, label: "500" },
+];
+
+const bmDoses = [
+  { dose: 0, ivg: 1.0, root: 17.24, label: "Controle" },
+  { dose: 12.5, ivg: 1.05, root: 18.9, label: "12,5" },
+  { dose: 25, ivg: 1.12, root: 21.3, label: "25" },
+  { dose: 50, ivg: 1.18, root: 24.1, label: "50" },
+  { dose: 100, ivg: 1.25, root: 27.8, label: "100" },
+  { dose: 250, ivg: 1.32, root: 31.2, label: "250" },
+  { dose: 500, ivg: 1.38, root: 34.6, label: "500" },
+  { dose: 1000, ivg: 1.42, root: 36.51, label: "1000" },
+];
+
+const fungiResults = [
+  { representante: "A. niger", ec50: 142.42, mic: 70.35, loec: 35.18, halo: 29.25, ranking: 1 },
+  { representante: "A. fumigatus", ec50: 177.47, mic: 85.43, loec: 40.20, halo: 28.60, ranking: 2 },
+  { representante: "F. fujikuroi", ec50: 198.55, mic: 100.50, loec: 50.25, halo: 28.68, ranking: 3 },
+  { representante: "P. chrysogenum", ec50: 247.32, mic: 115.58, loec: 60.30, halo: 27.53, ranking: 4 },
+  { representante: "T. reesei", ec50: 271.30, mic: 130.65, loec: 65.33, halo: 27.14, ranking: 5 },
+  { representante: "R. solani (proxy)", ec50: 319.02, mic: 145.73, loec: 70.35, halo: 25.80, ranking: 6, isProxy: true },
+];
+
+const compounds = [
+  { name: "Xantohumol", extract: "EEB-HT", tr: "30,1 min", mz: "355,1548", formula: "C₂₁H₂₂O₅", fn: "Elicitor hormético", isContaminant: false, img: IMAGES.xantohumol },
+  { name: "Hordenina", extract: "EEB-HT", tr: "1,0 min", mz: "166,1227", formula: "C₁₀H₁₅NO", fn: "Aleloquímico/sinalização", isContaminant: false, img: IMAGES.hordenina },
+  { name: "Ácido linoleico", extract: "EEB-BM", tr: "32,9 min", mz: "281,2472", formula: "C₁₈H₃₂O₂", fn: "Precursor jasmonatos", isContaminant: false, img: IMAGES.acidoLinoleico },
+  { name: "Diterpeno (labdano)", extract: "Ambos", tr: "28,8/33,1 min", mz: "317,209", formula: "C₂₀H₂₈O₃", fn: "Defesa vegetal", isContaminant: false, img: IMAGES.diterpenoide },
+  { name: "Erucamida ⚠️", extract: "Ambos", tr: "6,7/46,7 min", mz: "338,3425", formula: "C₂₂H₄₃NO", fn: "Possível contaminante", isContaminant: true, img: IMAGES.erucamida },
+  { name: "Anidrido ftálico ⚠️", extract: "Ambos", tr: "33,8/34 min", mz: "149,0233", formula: "C₈H₄O₃", fn: "Contaminante vidraria", isContaminant: true, img: IMAGES.anidridoFtalico },
+];
+
+const hypotheses = [
+  { id: 'H1', title: 'Resposta Bifásica (Hormese)', desc: 'Trub quente induz resposta bifásica', highlight: true, icon: '📈' },
+  { id: 'H2', title: 'Saturação Assintótica', desc: 'Bagaço segue saturação sem toxicidade até 1000 mg/L', highlight: true, icon: '📊' },
+  { id: 'H3', title: 'Predição AraGEM', desc: 'Modelo metabólico prediz doses ótimas', highlight: false, icon: '🧬' },
+  { id: 'H4', title: 'Inibição de Fitopatógenos', desc: 'Compostos bioativos inibem crescimento fúngico', highlight: false, icon: '🛡️' },
+  { id: 'H5', title: 'Ação Dual', desc: 'HT = sinalizador | BM = nutricional', highlight: false, icon: '⚡' },
+];
+
+const timelineItems = [
+  { period: 'Jun-Dez/2024', title: 'Revisão bibliográfica', status: 'done', icon: '📚' },
+  { period: 'Jan-Mar/2025', title: 'Coleta e processamento', status: 'done', icon: '🧪' },
+  { period: 'Mar-Mai/2025', title: 'CLAE-DAD-EM/EM', status: 'done', icon: '🔬' },
+  { period: 'Mar-Ago/2025', title: 'Curadoria in silico', status: 'done', icon: '💻' },
+  { period: 'Ago-Nov/2025', title: 'FBA com COBRApy', status: 'done', icon: '📊' },
+  { period: 'Jan/25-Mar/26', title: 'Ensaios germinação', status: 'done', icon: '🌱' },
+  { period: 'Nov/25-Jan/26', title: 'Ensaios antifúngicos', status: 'done', icon: '🛡️' },
+  { period: 'Mar-Abr/2026', title: 'Análises estatísticas', status: 'done', icon: '📈' },
+  { period: 'Mai-Ago/2026', title: 'Escrita do relatório', status: 'done', icon: '✍️' },
+  { period: 'Set/2026', title: 'QUALIFICAÇÃO', status: 'current', icon: '🎓' },
+  { period: 'Set-Dez/2026', title: 'Novos ensaios antifúngicos', status: 'future', icon: '🔄' },
+  { period: 'Jan-Mar/2027', title: 'Casa de vegetação', status: 'future', icon: '🏡' },
+  { period: 'Jun/2028', title: 'DEFESA', status: 'future', icon: '🏆' },
+];
+
+const residuosData = [
+  {
+    id: "bsg", nome: "Bagaço de Malte (BSG)", subnome: "Brewer's Spent Grain", icone: "🌾", cor: "verde",
+    origem: "Cascas da cevada malteada que permanecem após a extração dos açúcares fermentáveis durante a filtração do mosto.",
+    volume: "~85% do resíduo sólido total",
+    desafio: "Alto teor de umidade (75-80%)",
+    composicao: ["Proteínas: 20-30%", "Fibras: 45-70%", "Lipídios: 2-10%", "Fenólicos: 1,5-3 mg/g"],
+    papel: "Condicionador edáfico e vetor nutricional. Matriz lipídica gera curva de saturação assintótica sem toxicidade."
+  },
+  {
+    id: "ht", nome: "Trub Quente (HT)", subnome: "Hot Trub", icone: "🍺", cor: "ambar",
+    origem: "Coagulação e precipitação de proteínas, polifenóis, resíduos de lúpulo durante a fervura do mosto.",
+    volume: "2º maior resíduo sólido",
+    desafio: "Separação por whirlpool; alta variabilidade",
+    composicao: ["Proteínas: 20-30%", "Lipídios: 10-12%", "Fenólicos: 1-3 mg/g", "Xantohumol + Hordenina"],
+    papel: "Elicitor bioquímico e sinalizador. Induz hormese: bioestimulação em baixas doses, fitotoxicidade em altas."
+  }
+];
+
+// ============ ACADEMIC IMAGE COMPONENT ============
+function AcademicImage({ src, alt, caption, darkMode }) {
+  const [isLoaded, setIsLoaded] = useState(false);
+  const [hasError, setHasError] = useState(false);
+  const [isZoomed, setIsZoomed] = useState(false);
+
+  return React.createElement(React.Fragment, null,
+    React.createElement('figure', { className: 'relative group' },
+      React.createElement('div', {
+        className: 'relative overflow-hidden rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 cursor-zoom-in',
+        onClick: () => !hasError && setIsZoomed(true)
+      },
+        !isLoaded && !hasError && React.createElement('div', {
+          className: `absolute inset-0 flex items-center justify-center ${darkMode ? 'bg-[#1a2b12]' : 'bg-gray-100'}`
+        },
+          React.createElement('div', { className: 'animate-pulse flex flex-col items-center gap-2' },
+            React.createElement('div', { className: 'w-8 h-8 border-2 border-[#D4A017] border-t-transparent rounded-full animate-spin' }),
+            React.createElement('span', { className: 'text-xs' }, 'Carregando...')
+          )
+        ),
+        hasError ? React.createElement('div', {
+          className: `aspect-video flex flex-col items-center justify-center ${darkMode ? 'bg-[#1a2b12]' : 'bg-gray-100'}`
+        },
+          React.createElement('span', { className: 'text-4xl mb-2' }, '🖼️'),
+          React.createElement('span', { className: 'text-xs' }, 'Imagem indisponível')
+        ) : React.createElement('img', {
+          src, alt, loading: 'lazy',
+          onLoad: () => setIsLoaded(true),
+          onError: () => setHasError(true),
+          className: `w-full h-auto object-contain transition-transform duration-300 group-hover:scale-105 ${isLoaded ? 'opacity-100' : 'opacity-0'}`
+        })
+      ),
+      caption && React.createElement('figcaption', {
+        className: `mt-2 text-xs text-center italic ${darkMode ? 'text-[#4a7a2e]' : 'text-gray-600'}`
+      }, caption)
+    ),
+    isZoomed && React.createElement('div', {
+      className: 'fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-4 cursor-zoom-out',
+      onClick: () => setIsZoomed(false)
+    },
+      React.createElement('img', { src, alt, className: 'max-w-full max-h-full object-contain' }),
+      React.createElement('button', {
+        className: 'absolute top-4 right-4 text-white text-3xl hover:text-[#D4A017]',
+        onClick: (e) => { e.stopPropagation(); setIsZoomed(false); }
+      }, '×')
+    )
+  );
+}
+
+// ============ COUNT UP ============
+function CountUp({ end, decimals = 0, suffix = '' }) {
+  const [value, setValue] = useState(0);
+  const ref = useRef(null);
+  const inView = useInView(ref, { once: true });
+
+  useEffect(() => {
+    if (!inView) return;
+    const duration = 2000;
+    const startTime = Date.now();
+    const interval = setInterval(() => {
+      const elapsed = Date.now() - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      const eased = 1 - Math.pow(1 - progress, 3);
+      setValue(eased * end);
+      if (progress >= 1) clearInterval(interval);
+    }, 16);
+    return () => clearInterval(interval);
+  }, [inView, end]);
+
+  return React.createElement('span', { ref }, value.toFixed(decimals) + suffix);
+}
+
+// ============ MAIN APP ============
+function App() {
+  const [darkMode, setDarkMode] = useState(true);
+  const [activeSection, setActiveSection] = useState(0);
+  const [presentationMode, setPresentationMode] = useState(false);
+
+  useEffect(() => {
+    document.documentElement.classList.toggle('dark', darkMode);
+    document.documentElement.classList.toggle('light', !darkMode);
+    document.body.classList.toggle('dark', darkMode);
+    document.body.classList.toggle('light', !darkMode);
+  }, [darkMode]);
+
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'f' || e.key === 'F') setPresentationMode(p => !p);
+      if (e.key === 'd' || e.key === 'D') setDarkMode(p => !p);
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
+  const sections = ['cover', 'problem', 'hypotheses', 'methodology', 'phytochemistry', 'curves', 'fungal', 'timeline', 'conclusions'];
+  const sectionLabels = ['Capa', 'Problema', 'Hipóteses', 'Metodologia', 'Fitoquímica', 'Curvas', 'GEM Fúngico', 'Cronograma', 'Conclusões'];
+
+  return React.createElement('div', {
+    className: `min-h-screen transition-colors duration-500 ${darkMode ? 'bg-[#0a0f07] text-[#F5E6C8]' : 'bg-[#faf8f0] text-[#1a1a1a]'}`
+  },
+    // Nav dots
+    React.createElement('nav', { className: 'fixed left-4 top-1/2 -translate-y-1/2 z-40 flex flex-col gap-3 hidden md:flex' },
+      sections.map((s, i) => React.createElement('button', {
+        key: s,
+        onClick: () => document.getElementById(s)?.scrollIntoView({ behavior: 'smooth' }),
+        className: `nav-dot w-3 h-3 rounded-full border-2 transition-all ${i === activeSection ? 'bg-[#D4A017] border-[#D4A017] scale-150' : 'bg-transparent border-[#4a7a2e] hover:border-[#D4A017]'}`,
+        title: sectionLabels[i]
+      }))
+    ),
+    // Controls
+    React.createElement('div', { className: 'fixed top-4 right-4 z-40 flex gap-2' },
+      React.createElement('button', {
+        onClick: () => setDarkMode(!darkMode),
+        className: `p-2 rounded-full ${darkMode ? 'bg-[#1a2b12] text-[#D4A017]' : 'bg-[#2D5016] text-[#F5E6C8]'}`
+      }, darkMode ? '☀️' : '🌙'),
+      React.createElement('button', {
+        onClick: () => setPresentationMode(!presentationMode),
+        className: `p-2 rounded-full ${darkMode ? 'bg-[#1a2b12] text-[#D4A017]' : 'bg-[#2D5016] text-[#F5E6C8]'}`
+      }, '📽️')
+    ),
+    // Presentation indicator
+    presentationMode && React.createElement('div', {
+      className: 'fixed top-4 left-1/2 -translate-x-1/2 z-40 bg-[#D4A017] text-[#0a0f07] px-4 py-2 rounded-full text-sm font-semibold'
+    }, 'Modo Apresentação — Pressione F para sair'),
+
+    // Main content
+    React.createElement('main', null,
+      // BLOCK 1: COVER
+      React.createElement('section', { id: 'cover', className: 'section-block relative flex items-center justify-center overflow-hidden' },
+        React.createElement('div', { className: 'absolute inset-0' },
+          React.createElement('div', { className: `absolute inset-0 ${darkMode ? 'bg-gradient-to-br from-[#0a0f07] via-[#141f0d] to-[#1a2b12]' : 'bg-gradient-to-br from-[#F5E6C8] via-[#f0e4b8] to-[#e8d9a0]'}` }),
+          Array.from({ length: 15 }, (_, i) => React.createElement('div', {
+            key: i, className: 'grain-particle',
+            style: { left: `${Math.random() * 100}%`, animationDelay: `${Math.random() * 5}s`, animationDuration: `${4 + Math.random() * 4}s` }
+          })),
+          React.createElement('div', { className: 'absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full bg-[#D4A017] opacity-5 blur-3xl' })
+        ),
+        React.createElement('div', { className: 'relative z-10 max-w-5xl mx-auto px-6 text-center' },
+          React.createElement('div', { className: 'inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#D4A017]/10 border border-[#D4A017]/30 mb-8' },
+            React.createElement('span', { className: 'w-2 h-2 rounded-full bg-[#D4A017] animate-pulse' }),
+            React.createElement('span', { className: `text-sm font-medium ${darkMode ? 'text-[#D4A017]' : 'text-[#8B4513]'}` }, 'Qualificação de Doutorado — Outubro 2026')
+          ),
+          React.createElement('h1', { className: `text-2xl md:text-4xl lg:text-5xl font-bold leading-tight mb-6 ${darkMode ? 'text-[#F5E6C8]' : 'text-[#2D5016]'}` },
+            'Modelagem metabólica in silico e validação agronômica do uso de trub quente e bagaço de malte como bioinsumos em Lactuca sativa L.'
+          ),
+          React.createElement('p', { className: `text-lg mb-4 ${darkMode ? 'text-[#4a7a2e]' : 'text-[#8B4513]'}` },
+            'Doutorando: ', React.createElement('strong', { className: darkMode ? 'text-[#D4A017]' : 'text-[#2D5016]' }, 'Hikari Shin Lovestain C. R. Lima')
+          ),
+          React.createElement('p', { className: `text-sm mb-2 ${darkMode ? 'text-[#F5E6C8]/70' : 'text-[#2D5016]/70'}` },
+            'Orientadores: ', React.createElement('strong', null, 'Prof. Dr. Gustavo Henrique Bianco de Souza'), ' | ', React.createElement('strong', null, 'Drª Regislainy Gomes da Silva')
+          ),
+          // Molecule SVG
+          React.createElement('div', { className: 'mt-8 flex justify-center animate-molecule', style: { transformStyle: 'preserve-3d' } },
+            React.createElement('svg', { width: '200', height: '200', viewBox: '0 0 280 280', className: 'opacity-80' },
+              React.createElement('g', { transform: 'translate(140,140)' },
+                React.createElement('polygon', { points: '0,-40 35,-20 35,20 0,40 -35,20 -35,-20', fill: 'none', stroke: '#D4A017', strokeWidth: '2', className: 'molecule-bond' }),
+                React.createElement('line', { x1: '35', y1: '-20', x2: '70', y2: '-35', stroke: '#4a7a2e', strokeWidth: '2', className: 'molecule-bond' }),
+                React.createElement('line', { x1: '-35', y1: '20', x2: '-70', y2: '35', stroke: '#8B4513', strokeWidth: '2', className: 'molecule-bond' }),
+                React.createElement('circle', { cx: '0', cy: '-40', r: '6', fill: '#D4A017' }),
+                React.createElement('text', { x: '0', y: '80', textAnchor: 'middle', fill: '#D4A017', fontSize: '11', fontFamily: 'monospace' }, 'Xantohumol')
+              )
+            )
+          ),
+          React.createElement('div', { className: 'mt-12' },
+            React.createElement('div', { className: `text-sm animate-bounce ${darkMode ? 'text-[#4a7a2e]' : 'text-[#2D5016]/50'}` }, '↓ Role para explorar ↓')
+          )
+        )
+      ),
+
+      // BLOCK 2: PROBLEM
+      React.createElement('section', { id: 'problem', className: 'section-block py-20 px-6 relative' },
+        React.createElement('div', { className: `absolute inset-0 ${darkMode ? 'bg-gradient-to-b from-[#0a0f07] to-[#141f0d]' : 'bg-gradient-to-b from-[#faf8f0] to-[#f0e4b8]'}` }),
+        React.createElement('div', { className: 'relative z-10 max-w-6xl mx-auto' },
+          React.createElement('div', { className: 'text-center mb-8' },
+            React.createElement('h2', { className: `text-3xl md:text-4xl font-bold mb-4 ${darkMode ? 'text-[#F5E6C8]' : 'text-[#2D5016]'}` }, 'O Problema'),
+            React.createElement('p', { className: `text-lg ${darkMode ? 'text-[#4a7a2e]' : 'text-[#8B4513]'}` }, 'Resíduos cervejeiros: de passivo ambiental a bioinsumo')
+          ),
+          // Beer process image
+          React.createElement('div', { className: 'mb-12 max-w-3xl mx-auto' },
+            React.createElement(AcademicImage, {
+              src: IMAGES.processoCerveja,
+              alt: 'Processo de fabricação de cerveja',
+              caption: 'Figura 1: Etapas envolvidas na produção da cerveja (Adaptada de Anderson et al., 2019)',
+              darkMode
+            })
+          ),
+          // Resíduos cards
+          React.createElement('div', { className: 'text-center mb-8' },
+            React.createElement('h3', { className: `text-2xl md:text-3xl font-bold mb-3 ${darkMode ? 'text-[#F5E6C8]' : 'text-[#2D5016]'}` }, 'Os Coprodutos da Indústria Cervejeira'),
+            React.createElement('p', { className: `text-base ${darkMode ? 'text-[#4a7a2e]' : 'text-[#8B4513]'} max-w-3xl mx-auto` }, 'Do passivo ambiental ao bioinsumo de precisão')
+          ),
+          React.createElement('div', { className: 'grid grid-cols-1 md:grid-cols-2 gap-6 mb-12' },
+            residuosData.map((r, idx) => {
+              const isVerde = r.cor === 'verde';
+              const primary = isVerde ? '#2D5016' : '#D4A017';
+              return React.createElement('div', {
+                key: r.id,
+                className: `card-hover rounded-2xl border-2 p-6 md:p-8 shadow-lg overflow-hidden ${darkMode ? (isVerde ? 'bg-[#2D5016]/10 border-[#2D5016]/40' : 'bg-[#D4A017]/10 border-[#D4A017]/40') : (isVerde ? 'bg-[#2D5016]/5 border-[#2D5016]/30' : 'bg-[#D4A017]/5 border-[#D4A017]/30')}`
+              },
+                React.createElement('div', { className: 'flex items-center gap-4 mb-6' },
+                  React.createElement('span', { className: 'text-5xl' }, r.icone),
+                  React.createElement('div', null,
+                    React.createElement('h4', { className: `text-xl md:text-2xl font-bold ${darkMode ? 'text-[#F5E6C8]' : 'text-[#2D5016]'}` }, r.nome),
+                    React.createElement('span', {
+                      className: 'inline-block text-xs font-semibold px-3 py-1 rounded-full mt-1',
+                      style: { backgroundColor: primary + '20', color: primary, border: `1px solid ${primary}40` }
+                    }, r.subnome)
+                  )
+                ),
+                React.createElement('p', { className: `text-sm mb-4 ${darkMode ? 'text-[#F5E6C8]/80' : 'text-[#2D5016]/80'}` }, r.origem),
+                React.createElement('div', { className: 'grid grid-cols-2 gap-3 mb-4' },
+                  React.createElement('div', { className: `p-3 rounded-lg ${darkMode ? 'bg-[#0a0f07]/40' : 'bg-white/60'}`, style: { border: `1px solid ${primary}30` } },
+                    React.createElement('span', { className: `block text-xs font-medium mb-1 ${darkMode ? 'text-[#F5E6C8]/50' : 'text-[#2D5016]/50'}` }, 'Volume'),
+                    React.createElement('span', { className: `font-bold text-sm ${darkMode ? 'text-[#F5E6C8]' : 'text-[#2D5016]'}` }, r.volume)
+                  ),
+                  React.createElement('div', { className: `p-3 rounded-lg ${darkMode ? 'bg-[#0a0f07]/40' : 'bg-white/60'}`, style: { border: `1px solid ${primary}30` } },
+                    React.createElement('span', { className: `block text-xs font-medium mb-1 ${darkMode ? 'text-[#F5E6C8]/50' : 'text-[#2D5016]/50'}` }, 'Desafio'),
+                    React.createElement('span', { className: `font-bold text-xs ${darkMode ? 'text-[#F5E6C8]' : 'text-[#2D5016]'}` }, r.desafio)
+                  )
+                ),
+                React.createElement('ul', { className: 'mb-4 space-y-1' },
+                  r.composicao.map((c, i) => React.createElement('li', { key: i, className: `flex items-center gap-2 text-sm ${darkMode ? 'text-[#F5E6C8]/80' : 'text-[#2D5016]/80'}` },
+                    React.createElement('span', { className: 'w-2 h-2 rounded-full flex-shrink-0', style: { backgroundColor: primary } }), c
+                  ))
+                ),
+                React.createElement('div', {
+                  className: `mt-4 p-4 rounded-xl shadow-sm ${darkMode ? 'bg-[#0a0f07]/60' : 'bg-white'}`,
+                  style: { borderLeft: `4px solid ${primary}` }
+                },
+                  React.createElement('h5', { className: 'font-bold mb-2 text-sm', style: { color: primary } }, '🎯 Papel neste Estudo'),
+                  React.createElement('p', { className: `text-xs leading-relaxed ${darkMode ? 'text-[#F5E6C8]/70' : 'text-[#2D5016]/70'}` }, r.papel)
+                )
+              );
+            })
+          ),
+          // Stats cards
+          React.createElement('div', { className: 'grid grid-cols-2 md:grid-cols-4 gap-4 mb-12' },
+            [
+              { icon: '🍺', stat: 85, suffix: '%', title: 'Bagaço de Malte', color: '#D4A017' },
+              { icon: '⚗️', stat: 2, suffix: 'º', title: 'Trub Quente', color: '#C68E17' },
+              { icon: '💧', stat: 78, suffix: '%', title: 'Umidade', color: '#8B4513' },
+              { icon: '🌍', stat: 12, suffix: '', title: 'ODS 12', color: '#2D5016' }
+            ].map((card, i) => React.createElement('div', {
+              key: i,
+              className: `card-hover p-6 rounded-2xl border ${darkMode ? 'bg-[#1a2b12]/80 border-[#2D5016]/30' : 'bg-white/80 border-[#2D5016]/20'}`
+            },
+              React.createElement('div', { className: 'text-4xl mb-3' }, card.icon),
+              React.createElement('div', { className: 'text-4xl font-bold mb-2', style: { color: card.color } },
+                React.createElement(CountUp, { end: card.stat, suffix: card.suffix })
+              ),
+              React.createElement('h3', { className: `font-semibold text-lg mb-2 ${darkMode ? 'text-[#F5E6C8]' : 'text-[#2D5016]'}` }, card.title)
+            ))
+          ),
+          // Circular economy
+          React.createElement('div', { className: 'flex items-center justify-center gap-4 md:gap-8 flex-wrap' },
+            React.createElement('div', { className: `flex flex-col items-center p-4 rounded-xl ${darkMode ? 'bg-[#D4A017]/10' : 'bg-[#D4A017]/20'}` },
+              React.createElement('span', { className: 'text-4xl' }, '🍺'),
+              React.createElement('span', { className: 'text-xs mt-2' }, 'Cervejaria')
+            ),
+            React.createElement('div', { className: 'text-2xl' }, '→'),
+            React.createElement('div', { className: `flex flex-col items-center p-4 rounded-xl ${darkMode ? 'bg-[#8B4513]/10' : 'bg-[#8B4513]/20'}` },
+              React.createElement('span', { className: 'text-4xl' }, '♻️'),
+              React.createElement('span', { className: 'text-xs mt-2' }, 'Resíduo')
+            ),
+            React.createElement('div', { className: 'text-2xl' }, '→'),
+            React.createElement('div', { className: `flex flex-col items-center p-4 rounded-xl ${darkMode ? 'bg-[#2D5016]/20' : 'bg-[#2D5016]/10'}` },
+              React.createElement('span', { className: 'text-4xl' }, '🌱'),
+              React.createElement('span', { className: 'text-xs mt-2' }, 'Bioinsumo')
+            )
+          )
+        )
+      ),
+
+      // BLOCK 3: HYPOTHESES
+      React.createElement('section', { id: 'hypotheses', className: 'section-block py-20 px-6 relative' },
+        React.createElement('div', { className: `absolute inset-0 ${darkMode ? 'bg-gradient-to-b from-[#141f0d] to-[#0a0f07]' : 'bg-gradient-to-b from-[#f0e4b8] to-[#faf8f0]'}` }),
+        React.createElement('div', { className: 'relative z-10 max-w-6xl mx-auto' },
+          React.createElement('div', { className: 'text-center mb-12' },
+            React.createElement('h2', { className: `text-3xl md:text-4xl font-bold mb-4 ${darkMode ? 'text-[#F5E6C8]' : 'text-[#2D5016]'}` }, 'Hipóteses Centrais'),
+            React.createElement('p', { className: `text-lg ${darkMode ? 'text-[#4a7a2e]' : 'text-[#8B4513]'}` }, 'Cinco hipóteses que guiam esta investigação')
+          ),
+          React.createElement('div', { className: 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6' },
+            hypotheses.map((h, i) => React.createElement('div', {
+              key: h.id,
+              className: `card-hover cursor-pointer p-6 rounded-2xl border-2 ${h.highlight ? (darkMode ? 'bg-[#D4A017]/10 border-[#D4A017]/50' : 'bg-[#D4A017]/10 border-[#D4A017]/50') : (darkMode ? 'bg-[#1a2b12]/60 border-[#2D5016]/30' : 'bg-white/60 border-[#2D5016]/20')}`
+            },
+              React.createElement('div', { className: 'flex items-start gap-3 mb-3' },
+                React.createElement('span', { className: 'text-3xl' }, h.icon),
+                React.createElement('span', {
+                  className: `text-xs font-mono font-bold px-2 py-0.5 rounded ${h.highlight ? 'bg-[#D4A017] text-[#0a0f07]' : 'bg-[#2D5016] text-[#F5E6C8]'}`
+                }, h.id)
+              ),
+              React.createElement('h3', { className: `font-bold text-lg mb-2 ${darkMode ? 'text-[#F5E6C8]' : 'text-[#2D5016]'}` }, h.title),
+              React.createElement('p', { className: `text-sm ${darkMode ? 'text-[#F5E6C8]/70' : 'text-[#8B4513]/80'}` }, h.desc),
+              h.highlight && React.createElement('div', { className: 'mt-3 flex items-center gap-1' },
+                React.createElement('span', { className: 'w-1.5 h-1.5 rounded-full bg-[#D4A017] animate-pulse' }),
+                React.createElement('span', { className: 'text-xs text-[#D4A017] font-medium' }, 'Hipótese principal')
+              )
+            ))
+          )
+        )
+      ),
+
+      // BLOCK 4: METHODOLOGY
+      React.createElement('section', { id: 'methodology', className: 'section-block py-20 px-6 relative' },
+        React.createElement('div', { className: `absolute inset-0 ${darkMode ? 'bg-gradient-to-b from-[#0a0f07] to-[#141f0d]' : 'bg-gradient-to-b from-[#faf8f0] to-[#f0e4b8]'}` }),
+        React.createElement('div', { className: 'relative z-10 max-w-6xl mx-auto' },
+          React.createElement('div', { className: 'text-center mb-12' },
+            React.createElement('h2', { className: `text-3xl md:text-4xl font-bold mb-4 ${darkMode ? 'text-[#F5E6C8]' : 'text-[#2D5016]'}` }, 'Fluxo Metodológico'),
+            React.createElement('p', { className: `text-lg ${darkMode ? 'text-[#4a7a2e]' : 'text-[#8B4513]'}` }, 'Pipeline integrado: do resíduo à validação')
+          ),
+          React.createElement('div', { className: 'grid grid-cols-2 md:grid-cols-4 gap-4' },
+            [
+              { id: 1, title: 'Amostras', detail: 'NECERVA/UFOP', icon: '🧪' },
+              { id: 2, title: 'Secagem', detail: '45°C / 4 dias', icon: '🌡️' },
+              { id: 3, title: 'Maceração', detail: 'Ultrassônica 40kHz', icon: '🔊' },
+              { id: 4, title: 'CLAE-DAD-EM', detail: 'Fiocruz', icon: '🔬' },
+              { id: 5, title: 'AraGEM', detail: 'L. sativa (ISO)', icon: '🌱' },
+              { id: 6, title: 'FBA', detail: 'COBRApy/Python 3.14', icon: '💻' },
+              { id: 7, title: 'Ensaios ISO', detail: '11269-2', icon: '📏' },
+              { id: 8, title: 'Antifúngico', detail: 'Microdiluição', icon: '🛡️' }
+            ].map((step, i) => React.createElement('div', {
+              key: step.id,
+              className: `relative p-4 rounded-xl border text-center card-hover ${darkMode ? 'bg-[#1a2b12]/80 border-[#2D5016]/30' : 'bg-white/80 border-[#2D5016]/20'}`
+            },
+              React.createElement('div', { className: 'absolute -top-3 -left-2 w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold text-white bg-[#D4A017]' }, step.id),
+              React.createElement('div', { className: 'text-3xl mb-2' }, step.icon),
+              React.createElement('h3', { className: `font-semibold text-sm mb-1 ${darkMode ? 'text-[#F5E6C8]' : 'text-[#2D5016]'}` }, step.title),
+              React.createElement('p', { className: `text-xs ${darkMode ? 'text-[#4a7a2e]' : 'text-[#8B4513]/70'}` }, step.detail)
+            ))
+          ),
+          React.createElement('div', { className: 'mt-12 flex justify-center gap-8 flex-wrap' },
+            React.createElement('div', { className: `px-6 py-4 rounded-xl border ${darkMode ? 'bg-[#D4A017]/10 border-[#D4A017]/30' : 'bg-[#D4A017]/10 border-[#D4A017]/30'}` },
+              React.createElement('div', { className: 'text-3xl font-bold text-[#D4A017]' }, '6,13%'),
+              React.createElement('div', { className: `text-sm ${darkMode ? 'text-[#F5E6C8]/70' : 'text-[#8B4513]'}` }, 'Rendimento EEB-HT')
+            ),
+            React.createElement('div', { className: `px-6 py-4 rounded-xl border ${darkMode ? 'bg-[#2D5016]/20 border-[#2D5016]/30' : 'bg-[#2D5016]/10 border-[#2D5016]/30'}` },
+              React.createElement('div', { className: 'text-3xl font-bold text-[#2D5016]' }, '6,20%'),
+              React.createElement('div', { className: `text-sm ${darkMode ? 'text-[#F5E6C8]/70' : 'text-[#8B4513]'}` }, 'Rendimento EEB-BM')
+            )
+          )
+        )
+      ),
+
+      // BLOCK 5: PHYTOCHEMISTRY
+      React.createElement('section', { id: 'phytochemistry', className: 'section-block py-20 px-6 relative' },
+        React.createElement('div', { className: `absolute inset-0 ${darkMode ? 'bg-gradient-to-b from-[#141f0d] to-[#0a0f07]' : 'bg-gradient-to-b from-[#f0e4b8] to-[#faf8f0]'}` }),
+        React.createElement('div', { className: 'relative z-10 max-w-6xl mx-auto' },
+          React.createElement('div', { className: 'text-center mb-12' },
+            React.createElement('h2', { className: `text-3xl md:text-4xl font-bold mb-4 ${darkMode ? 'text-[#F5E6C8]' : 'text-[#2D5016]'}` }, 'Fitoquímica'),
+            React.createElement('p', { className: `text-lg ${darkMode ? 'text-[#4a7a2e]' : 'text-[#8B4513]'}` }, '6 compostos anotados por CLAE-DAD-EM/EM')
+          ),
+          // Chromatograms
+          React.createElement('div', { className: 'grid grid-cols-1 md:grid-cols-2 gap-6 mb-12' },
+            React.createElement(AcademicImage, { src: IMAGES.claeEEBHT, alt: 'Cromatograma EEB-HT', caption: 'Figura 2a: Cromatograma EEB-HT', darkMode }),
+            React.createElement(AcademicImage, { src: IMAGES.claeEEBBM, alt: 'Cromatograma EEB-BM', caption: 'Figura 2b: Cromatograma EEB-BM', darkMode })
+          ),
+          // Table
+          React.createElement('div', { className: 'overflow-x-auto rounded-2xl border', style: { borderColor: darkMode ? 'rgba(45,80,22,0.3)' : 'rgba(45,80,22,0.2)' } },
+            React.createElement('table', { className: 'w-full text-sm' },
+              React.createElement('thead', null,
+                React.createElement('tr', { className: darkMode ? 'bg-[#1a2b12]' : 'bg-[#2D5016]/10' },
+                  ['Composto', 'Extrato', 'TR', 'm/z', 'Fórmula', 'Função'].map(h => React.createElement('th', {
+                    key: h, className: `px-4 py-3 text-left font-semibold ${darkMode ? 'text-[#D4A017]' : 'text-[#2D5016]'}`
+                  }, h))
+                )
+              ),
+              React.createElement('tbody', null,
+                compounds.map((c, i) => React.createElement('tr', {
+                  key: i,
+                  className: `border-t ${c.isContaminant ? (darkMode ? 'bg-[#8B4513]/10' : 'bg-[#8B4513]/5') : ''}`
+                },
+                  React.createElement('td', { className: `px-4 py-3 font-medium ${darkMode ? 'text-[#F5E6C8]' : 'text-[#2D5016]'}` }, c.name),
+                  React.createElement('td', { className: `px-4 py-3 font-mono text-xs ${darkMode ? 'text-[#4a7a2e]' : 'text-[#8B4513]'}` }, c.extract),
+                  React.createElement('td', { className: `px-4 py-3 font-mono text-xs ${darkMode ? 'text-[#F5E6C8]/70' : 'text-[#2D5016]/70'}` }, c.tr),
+                  React.createElement('td', { className: `px-4 py-3 font-mono text-xs ${darkMode ? 'text-[#F5E6C8]/70' : 'text-[#2D5016]/70'}` }, c.mz),
+                  React.createElement('td', { className: `px-4 py-3 font-mono text-xs ${darkMode ? 'text-[#F5E6C8]/70' : 'text-[#2D5016]/70'}` }, c.formula),
+                  React.createElement('td', { className: `px-4 py-3 text-xs ${c.isContaminant ? 'text-[#C68E17]' : (darkMode ? 'text-[#4a7a2e]' : 'text-[#2D5016]')}` }, c.fn)
+                ))
+              )
+            )
+          )
+        )
+      ),
+
+      // BLOCK 6: CURVES
+      React.createElement('section', { id: 'curves', className: 'section-block py-20 px-6 relative' },
+        React.createElement('div', { className: `absolute inset-0 ${darkMode ? 'bg-gradient-to-b from-[#0a0f07] to-[#141f0d]' : 'bg-gradient-to-b from-[#faf8f0] to-[#f0e4b8]'}` }),
+        React.createElement('div', { className: 'relative z-10 max-w-6xl mx-auto' },
+          React.createElement('div', { className: 'text-center mb-8' },
+            React.createElement('h2', { className: `text-3xl md:text-4xl font-bold mb-4 ${darkMode ? 'text-[#F5E6C8]' : 'text-[#2D5016]'}` }, 'Curvas FBA vs In Vitro'),
+            React.createElement('p', { className: `text-lg ${darkMode ? 'text-[#4a7a2e]' : 'text-[#8B4513]'}` }, 'Predição metabólica confrontada com dados experimentais')
+          ),
+          // Phenotype images
+          React.createElement('div', { className: 'mb-8' },
+            React.createElement(AcademicImage, {
+              src: IMAGES.pelosRadiculares,
+              alt: 'Pelos radiculares precoces',
+              caption: 'Figura 17: Formação precoce de pelos radiculares em L. sativa tratada com EEB-HT vs Controle',
+              darkMode
+            })
+          ),
+          React.createElement('div', { className: 'grid grid-cols-1 md:grid-cols-2 gap-6' },
+            React.createElement('div', { className: `p-6 rounded-2xl border ${darkMode ? 'bg-[#1a2b12]/60 border-[#2D5016]/30' : 'bg-white/60 border-[#2D5016]/20'}` },
+              React.createElement('h3', { className: `font-semibold mb-2 ${darkMode ? 'text-[#F5E6C8]' : 'text-[#2D5016]'}` }, 'EEB-HT — Hormese'),
+              React.createElement('p', { className: `text-sm mb-4 ${darkMode ? 'text-[#4a7a2e]' : 'text-[#2D5016]/60'}` }, 'EC50 IVG = 45,2 mg/L | Pico: 12,5 mg/L'),
+              React.createElement('div', { className: 'text-5xl font-bold text-[#D4A017] mb-2' }, React.createElement(CountUp, { end: 45.2, decimals: 1 })),
+              React.createElement('p', { className: `text-xs ${darkMode ? 'text-[#F5E6C8]/60' : 'text-[#2D5016]/60'}` }, 'mg/L (EC50 IVG)')
+            ),
+            React.createElement('div', { className: `p-6 rounded-2xl border ${darkMode ? 'bg-[#1a2b12]/60 border-[#2D5016]/30' : 'bg-white/60 border-[#2D5016]/20'}` },
+              React.createElement('h3', { className: `font-semibold mb-2 ${darkMode ? 'text-[#F5E6C8]' : 'text-[#2D5016]'}` }, 'EEB-BM — Saturação'),
+              React.createElement('p', { className: `text-sm mb-4 ${darkMode ? 'text-[#4a7a2e]' : 'text-[#2D5016]/60'}` }, 'EC50 > 3600 mg/L | Sem toxicidade'),
+              React.createElement('div', { className: 'text-5xl font-bold text-[#2D5016] mb-2' }, React.createElement(CountUp, { end: 3611.86, decimals: 2 })),
+              React.createElement('p', { className: `text-xs ${darkMode ? 'text-[#F5E6C8]/60' : 'text-[#2D5016]/60'}` }, 'mg/L (EC50 extrapolado)')
+            )
+          ),
+          React.createElement(AcademicImage, {
+            src: IMAGES.controleCuSO4,
+            alt: 'CuSO4 esverdeamento',
+            caption: 'Figura 22: Esverdeamento precoce em plântulas expostas ao CuSO₄',
+            darkMode
+          })
+        )
+      ),
+
+      // BLOCK 7: FUNGAL GEM
+      React.createElement('section', { id: 'fungal', className: 'section-block py-20 px-6 relative' },
+        React.createElement('div', { className: `absolute inset-0 ${darkMode ? 'bg-gradient-to-b from-[#141f0d] to-[#0a0f07]' : 'bg-gradient-to-b from-[#f0e4b8] to-[#faf8f0]'}` }),
+        React.createElement('div', { className: 'relative z-10 max-w-6xl mx-auto' },
+          React.createElement('div', { className: 'text-center mb-12' },
+            React.createElement('h2', { className: `text-3xl md:text-4xl font-bold mb-4 ${darkMode ? 'text-[#F5E6C8]' : 'text-[#2D5016]'}` }, 'Modelagem GEM Fúngica'),
+            React.createElement('p', { className: `text-lg ${darkMode ? 'text-[#4a7a2e]' : 'text-[#8B4513]'}` }, 'Hierarquia de sensibilidade ao EEB-HT')
+          ),
+          // Stats
+          React.createElement('div', { className: 'flex justify-center gap-6 mb-8 flex-wrap' },
+            React.createElement('div', { className: `px-6 py-4 rounded-xl border text-center ${darkMode ? 'bg-[#D4A017]/10 border-[#D4A017]/30' : 'bg-[#D4A017]/5 border-[#D4A017]/30'}` },
+              React.createElement('div', { className: 'text-3xl font-bold text-[#D4A017]' }, React.createElement(CountUp, { end: 6000 })),
+              React.createElement('div', { className: `text-xs ${darkMode ? 'text-[#F5E6C8]/60' : 'text-[#8B4513]'}` }, 'Simulações FBA')
+            )
+          ),
+          // Results table
+          React.createElement('div', { className: 'overflow-x-auto mb-8' },
+            React.createElement('table', { className: 'w-full text-sm' },
+              React.createElement('thead', null,
+                React.createElement('tr', { className: darkMode ? 'bg-[#2D5016]/20' : 'bg-[#2D5016]/10' },
+                  ['#', 'Fungo', 'EC₅₀', 'MIC', 'LOEC', 'Halo 1000mg/L'].map(h => React.createElement('th', {
+                    key: h, className: `px-3 py-2 text-left font-semibold ${darkMode ? 'text-[#D4A017]' : 'text-[#2D5016]'}`
+                  }, h))
+                )
+              ),
+              React.createElement('tbody', null,
+                fungiResults.map((r, i) => React.createElement('tr', {
+                  key: i,
+                  className: `border-t ${r.isProxy ? (darkMode ? 'bg-[#8B4513]/10' : 'bg-[#8B4513]/5') : ''}`
+                },
+                  React.createElement('td', { className: 'px-3 py-2 text-lg' }, r.ranking === 1 ? '🥇' : r.ranking === 2 ? '🥈' : r.ranking === 3 ? '🥉' : `#${r.ranking}`),
+                  React.createElement('td', { className: `px-3 py-2 font-medium ${darkMode ? 'text-[#F5E6C8]' : 'text-[#2D5016]'}` }, r.representante, r.isProxy && ' ⚠️'),
+                  React.createElement('td', { className: `px-3 py-2 font-mono ${darkMode ? 'text-[#D4A017]' : 'text-[#8B4513]'}` }, r.ec50),
+                  React.createElement('td', { className: `px-3 py-2 font-mono ${darkMode ? 'text-[#F5E6C8]/70' : 'text-[#2D5016]/70'}` }, r.mic),
+                  React.createElement('td', { className: `px-3 py-2 font-mono ${darkMode ? 'text-[#F5E6C8]/70' : 'text-[#2D5016]/70'}` }, r.loec),
+                  React.createElement('td', { className: `px-3 py-2 font-bold ${darkMode ? 'text-[#D4A017]' : 'text-[#8B4513]'}` }, r.halo + ' mm')
+                ))
+              )
+            )
+          ),
+          // Paradox
+          React.createElement('div', { className: `p-6 rounded-2xl border-2 ${darkMode ? 'bg-[#D4A017]/10 border-[#D4A017]/50' : 'bg-[#D4A017]/5 border-[#D4A017]/50'}` },
+            React.createElement('h3', { className: `font-bold mb-4 text-center text-xl ${darkMode ? 'text-[#C68E17]' : 'text-[#8B4513]'}` }, '⚡ O PARADOXO'),
+            React.createElement('div', { className: 'grid grid-cols-1 md:grid-cols-3 gap-4 text-center' },
+              React.createElement('div', null,
+                React.createElement('div', { className: 'text-3xl mb-2' }, '🔮'),
+                React.createElement('div', { className: `font-semibold ${darkMode ? 'text-[#D4A017]' : 'text-[#8B4513]'}` }, 'Predição In Silico'),
+                React.createElement('div', { className: 'text-2xl font-bold text-[#D4A017]' }, '25-30 mm')
+              ),
+              React.createElement('div', { className: 'flex flex-col justify-center' },
+                React.createElement('p', { className: `text-xs ${darkMode ? 'text-[#F5E6C8]/60' : 'text-[#2D5016]/60'}` }, 'Baixa difusividade de lipofílicos no ágar'),
+                React.createElement('p', { className: `text-xs mt-2 ${darkMode ? 'text-[#F5E6C8]/60' : 'text-[#2D5016]/60'}` }, 'Halo in silico = proxy matemático')
+              ),
+              React.createElement('div', null,
+                React.createElement('div', { className: 'text-3xl mb-2' }, '🧫'),
+                React.createElement('div', { className: `font-semibold ${darkMode ? 'text-[#8B4513]' : 'text-[#8B4513]'}` }, 'Placa Real'),
+                React.createElement('div', { className: 'text-2xl font-bold text-[#8B4513]' }, '0 mm')
+              )
+            )
+          )
+        )
+      ),
+
+      // BLOCK 8: TIMELINE
+      React.createElement('section', { id: 'timeline', className: 'section-block py-20 px-6 relative' },
+        React.createElement('div', { className: `absolute inset-0 ${darkMode ? 'bg-gradient-to-b from-[#0a0f07] to-[#141f0d]' : 'bg-gradient-to-b from-[#faf8f0] to-[#f0e4b8]'}` }),
+        React.createElement('div', { className: 'relative z-10 max-w-4xl mx-auto' },
+          React.createElement('div', { className: 'text-center mb-12' },
+            React.createElement('h2', { className: `text-3xl md:text-4xl font-bold mb-4 ${darkMode ? 'text-[#F5E6C8]' : 'text-[#2D5016]'}` }, 'Cronograma'),
+            React.createElement('p', { className: `text-lg ${darkMode ? 'text-[#4a7a2e]' : 'text-[#8B4513]'}` }, 'Linha do tempo do doutorado')
+          ),
+          React.createElement('div', { className: 'relative' },
+            React.createElement('div', { className: 'absolute left-6 md:left-1/2 top-0 bottom-0 w-0.5 bg-gradient-to-b from-[#2D5016] via-[#D4A017] to-[#8B4513]' }),
+            timelineItems.map((item, i) => {
+              const isLeft = i % 2 === 0;
+              return React.createElement('div', {
+                key: i,
+                className: `relative flex items-center mb-6 ${isLeft ? 'md:flex-row' : 'md:flex-row-reverse'} flex-row`
+              },
+                React.createElement('div', { className: `flex-1 ml-14 md:ml-0 ${isLeft ? 'md:pr-12 md:text-right' : 'md:pl-12 md:text-left'}` },
+                  React.createElement('div', {
+                    className: `inline-block p-4 rounded-xl border ${item.status === 'current' ? 'animate-pulse-glow border-[#D4A017] bg-[#D4A017]/10' : item.status === 'done' ? (darkMode ? 'bg-[#1a2b12]/60 border-[#2D5016]/30' : 'bg-white/60 border-[#2D5016]/20') : (darkMode ? 'bg-[#1a2b12]/30 border-[#2D5016]/15' : 'bg-white/30 border-[#2D5016]/10')}`
+                  },
+                    React.createElement('div', { className: `text-xs font-mono mb-1 ${item.status === 'current' ? 'text-[#D4A017]' : darkMode ? 'text-[#4a7a2e]' : 'text-[#2D5016]'}` }, item.period),
+                    React.createElement('div', { className: `font-semibold text-sm ${item.status === 'current' ? 'text-[#D4A017]' : darkMode ? 'text-[#F5E6C8]' : 'text-[#2D5016]'}` }, item.icon, ' ', item.title),
+                    item.status === 'done' && React.createElement('span', { className: 'text-xs text-[#4a7a2e]' }, '✅ Concluído'),
+                    item.status === 'future' && React.createElement('span', { className: `text-xs ${darkMode ? 'text-[#F5E6C8]/40' : 'text-[#2D5016]/40'}` }, '⏳ Futuro')
+                  )
+                ),
+                React.createElement('div', {
+                  className: `absolute left-6 md:left-1/2 w-4 h-4 rounded-full -translate-x-1/2 border-2 ${item.status === 'current' ? 'bg-[#D4A017] border-[#D4A017] scale-150' : item.status === 'done' ? 'bg-[#2D5016] border-[#4a7a2e]' : 'bg-transparent border-[#2D5016]/40'}`
+                }),
+                React.createElement('div', { className: 'hidden md:block flex-1' })
+              );
+            })
+          )
+        )
+      ),
+
+      // BLOCK 9: CONCLUSIONS
+      React.createElement('section', { id: 'conclusions', className: 'section-block py-20 px-6 relative' },
+        React.createElement('div', { className: `absolute inset-0 ${darkMode ? 'bg-gradient-to-b from-[#141f0d] to-[#0a0f07]' : 'bg-gradient-to-b from-[#f0e4b8] to-[#faf8f0]'}` }),
+        React.createElement('div', { className: 'relative z-10 max-w-5xl mx-auto' },
+          React.createElement('div', { className: 'text-center mb-12' },
+            React.createElement('h2', { className: `text-3xl md:text-4xl font-bold mb-4 ${darkMode ? 'text-[#F5E6C8]' : 'text-[#2D5016]'}` }, 'Conclusões Preliminares'),
+            React.createElement('p', { className: `text-lg ${darkMode ? 'text-[#4a7a2e]' : 'text-[#8B4513]'}` }, 'Principais achados desta investigação')
+          ),
+          React.createElement('div', { className: 'grid grid-cols-1 md:grid-cols-2 gap-6 mb-12' },
+            [
+              { icon: '✅', title: 'Dualidade Fitoquímica', desc: 'HT = sinalizador | BM = nutricional', status: 'confirmed' },
+              { icon: '✅', title: 'Hormese do Trub Quente', desc: 'Pico 12,5 mg/L | EC50 ~45-63 mg/L', status: 'confirmed' },
+              { icon: '✅', title: 'Saturação do Bagaço', desc: 'EC50 >3600 mg/L | Sem toxicidade', status: 'confirmed' },
+              { icon: '⚠️', title: 'Antifúngico', desc: 'Requer microdiluição em meio líquido', status: 'warning' }
+            ].map((c, i) => React.createElement('div', {
+              key: i,
+              className: `card-hover p-6 rounded-2xl border-2 ${c.status === 'confirmed' ? (darkMode ? 'bg-[#2D5016]/20 border-[#2D5016]/40' : 'bg-[#2D5016]/5 border-[#2D5016]/30') : (darkMode ? 'bg-[#D4A017]/10 border-[#D4A017]/40' : 'bg-[#D4A017]/5 border-[#D4A017]/30')}`
+            },
+              React.createElement('div', { className: 'flex items-start gap-4' },
+                React.createElement('span', { className: 'text-4xl' }, c.icon),
+                React.createElement('div', null,
+                  React.createElement('h3', { className: `font-bold text-lg mb-2 ${darkMode ? 'text-[#F5E6C8]' : 'text-[#2D5016]'}` }, c.title),
+                  React.createElement('p', { className: `text-sm ${darkMode ? 'text-[#F5E6C8]/70' : 'text-[#8B4513]/80'}` }, c.desc)
+                )
+              )
+            ))
+          ),
+          React.createElement('div', { className: 'text-center' },
+            React.createElement('div', {
+              className: `inline-block p-8 rounded-3xl border-2 ${darkMode ? 'bg-gradient-to-br from-[#1a2b12] to-[#141f0d] border-[#D4A017]/30' : 'bg-gradient-to-br from-white to-[#F5E6C8] border-[#D4A017]/30'}`
+            },
+              React.createElement('div', { className: 'text-5xl mb-4' }, '🌱'),
+              React.createElement('h3', { className: `text-xl font-bold mb-3 ${darkMode ? 'text-[#D4A017]' : 'text-[#8B4513]'}` }, 'Do resíduo ao bioinsumo'),
+              React.createElement('p', { className: `text-sm max-w-md mx-auto ${darkMode ? 'text-[#F5E6C8]/70' : 'text-[#2D5016]/70'}` },
+                'Esta pesquisa demonstra que resíduos da indústria cervejeira podem ser transformados em bioinsumos de alto valor agregado, alinhando economia circular com inovação agronômica.'
+              ),
+              React.createElement('div', { className: `mt-4 text-xs ${darkMode ? 'text-[#4a7a2e]' : 'text-[#2D5016]/50'}` }, 'ODS 12 • Consumo e Produção Responsáveis')
+            )
+          )
+        )
+      )
+    ),
+
+    // Footer
+    React.createElement('footer', { className: `py-8 text-center text-sm ${darkMode ? 'text-[#4a7a2e]' : 'text-[#2D5016]'}` },
+      React.createElement('p', null, 'Painel de Qualificação de Doutorado — Outubro 2026'),
+      React.createElement('p', { className: 'mt-1 text-xs opacity-60' },
+        'Pressione ', React.createElement('kbd', { className: 'px-1 py-0.5 rounded border border-current' }, 'F'), ' para modo apresentação | ',
+        React.createElement('kbd', { className: 'px-1 py-0.5 rounded border border-current ml-1' }, 'D'), ' para alternar tema'
+      )
+    )
+  );
+}
+
+// Render
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(React.createElement(App));
+</script>
+</body>
+</html>
