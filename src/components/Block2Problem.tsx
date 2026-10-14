@@ -2,6 +2,7 @@ import { motion, useInView } from 'framer-motion';
 import { useRef, useState, useEffect } from 'react';
 import AcademicImage from './AcademicImage';
 import { IMAGES } from '../assets/images';
+import { residuosCervejeirosData } from '../data/residuosData';
 
 interface Props { darkMode: boolean; }
 
@@ -111,6 +112,133 @@ export default function Block2Problem({ darkMode }: Props) {
             caption="Figura 1: Etapas envolvidas na produção da cerveja (Adaptada de Anderson et al., 2019)"
             darkMode={darkMode}
           />
+        </motion.div>
+
+        {/* Resíduos Cervejeiros Section */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={inView ? { opacity: 1, y: 0 } : {}}
+          transition={{ delay: 0.5, duration: 0.6 }}
+          className="mb-12"
+        >
+          <div className="text-center mb-8">
+            <h3 className={`text-2xl md:text-3xl font-bold mb-3 ${darkMode ? 'text-[#F5E6C8]' : 'text-[#2D5016]'}`}>
+              {residuosCervejeirosData.titulo}
+            </h3>
+            <p className={`text-base ${darkMode ? 'text-[#4a7a2e]' : 'text-[#8B4513]'} max-w-3xl mx-auto`}>
+              {residuosCervejeirosData.subtitulo}
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {residuosCervejeirosData.residuos.map((residuo, idx) => {
+              const isVerde = residuo.cor_tema === 'verde';
+              const primaryColor = isVerde ? '#2D5016' : '#D4A017';
+              const secondaryColor = isVerde ? '#4a7a2e' : '#C68E17';
+              
+              return (
+                <motion.div
+                  key={residuo.id}
+                  initial={{ opacity: 0, y: 30 }}
+                  animate={inView ? { opacity: 1, y: 0 } : {}}
+                  transition={{ delay: 0.6 + idx * 0.2, type: 'spring', stiffness: 100, damping: 15 }}
+                  whileHover={{ y: -5, transition: { duration: 0.2 } }}
+                  className={`relative rounded-2xl border-2 p-6 md:p-8 shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden ${
+                    darkMode
+                      ? isVerde
+                        ? 'bg-[#2D5016]/10 border-[#2D5016]/40'
+                        : 'bg-[#D4A017]/10 border-[#D4A017]/40'
+                      : isVerde
+                        ? 'bg-[#2D5016]/5 border-[#2D5016]/30'
+                        : 'bg-[#D4A017]/5 border-[#D4A017]/30'
+                  }`}
+                >
+                  {/* Ícone e Título */}
+                  <div className="flex items-center gap-4 mb-6">
+                    <span className="text-5xl">{residuo.icone}</span>
+                    <div>
+                      <h4 className={`text-xl md:text-2xl font-bold ${darkMode ? 'text-[#F5E6C8]' : 'text-[#2D5016]'}`}>
+                        {residuo.nome}
+                      </h4>
+                      <span
+                        className="inline-block text-xs font-semibold px-3 py-1 rounded-full mt-1"
+                        style={{
+                          backgroundColor: primaryColor + '20',
+                          color: primaryColor,
+                          border: `1px solid ${primaryColor}40`
+                        }}
+                      >
+                        {residuo.subnome}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Origem */}
+                  <div className="mb-5">
+                    <h5 className={`font-semibold text-xs uppercase tracking-wider mb-2 ${darkMode ? 'text-[#F5E6C8]/70' : 'text-[#2D5016]/70'}`}>
+                      Origem
+                    </h5>
+                    <p className={`text-sm leading-relaxed ${darkMode ? 'text-[#F5E6C8]/80' : 'text-[#2D5016]/80'}`}>
+                      {residuo.origem}
+                    </p>
+                  </div>
+
+                  {/* Volume e Desafio */}
+                  <div className="grid grid-cols-2 gap-3 mb-5">
+                    <div className={`p-3 rounded-lg ${darkMode ? 'bg-[#0a0f07]/40' : 'bg-white/60'}`}
+                      style={{ border: `1px solid ${primaryColor}30` }}>
+                      <span className={`block text-xs font-medium mb-1 ${darkMode ? 'text-[#F5E6C8]/50' : 'text-[#2D5016]/50'}`}>
+                        Volume
+                      </span>
+                      <span className={`font-bold text-sm ${darkMode ? 'text-[#F5E6C8]' : 'text-[#2D5016]'}`}>
+                        {residuo.volume}
+                      </span>
+                    </div>
+                    <div className={`p-3 rounded-lg ${darkMode ? 'bg-[#0a0f07]/40' : 'bg-white/60'}`}
+                      style={{ border: `1px solid ${primaryColor}30` }}>
+                      <span className={`block text-xs font-medium mb-1 ${darkMode ? 'text-[#F5E6C8]/50' : 'text-[#2D5016]/50'}`}>
+                        Desafio
+                      </span>
+                      <span className={`font-bold text-xs ${darkMode ? 'text-[#F5E6C8]' : 'text-[#2D5016]'}`}>
+                        {residuo.desafio}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Composição */}
+                  <div className="mb-5">
+                    <h5 className={`font-semibold text-xs uppercase tracking-wider mb-3 ${darkMode ? 'text-[#F5E6C8]/70' : 'text-[#2D5016]/70'}`}>
+                      Composição-Chave (Base Seca)
+                    </h5>
+                    <ul className="grid grid-cols-1 gap-1.5">
+                      {residuo.composicao.map((item, i) => (
+                        <li key={i} className={`flex items-center gap-2 text-sm ${darkMode ? 'text-[#F5E6C8]/80' : 'text-[#2D5016]/80'}`}>
+                          <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: primaryColor }} />
+                          {item}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  {/* Papel no Estudo (Destaque) */}
+                  <div
+                    className={`mt-5 p-4 rounded-xl shadow-sm ${darkMode ? 'bg-[#0a0f07]/60' : 'bg-white'}`}
+                    style={{ borderLeft: `4px solid ${primaryColor}` }}
+                  >
+                    <h5 className="font-bold mb-2 flex items-center gap-2 text-sm" style={{ color: primaryColor }}>
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                        <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                      </svg>
+                      Papel neste Estudo
+                    </h5>
+                    <p className={`text-xs leading-relaxed ${darkMode ? 'text-[#F5E6C8]/70' : 'text-[#2D5016]/70'}`}>
+                      {residuo.papel_no_estudo}
+                    </p>
+                  </div>
+                </motion.div>
+              );
+            })}
+          </div>
         </motion.div>
 
         {/* Cards */}
