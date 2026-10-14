@@ -549,15 +549,31 @@ function App() {
             React.createElement('h2', { className: `text-3xl md:text-4xl font-bold mb-4 ${darkMode ? 'text-[#F5E6C8]' : 'text-[#2D5016]'}` }, 'Curvas FBA vs In Vitro'),
             React.createElement('p', { className: `text-lg ${darkMode ? 'text-[#4a7a2e]' : 'text-[#8B4513]'}` }, 'Predição metabólica confrontada com dados experimentais')
           ),
-          // Phenotype images
-          React.createElement('div', { className: 'mb-8' },
-            React.createElement(AcademicImage, {
-              src: IMAGES.pelosRadiculares,
-              alt: 'Pelos radiculares precoces',
-              caption: 'Figura 17: Formação precoce de pelos radiculares em L. sativa tratada com EEB-HT vs Controle',
-              darkMode
-            })
+          // Phenotype cards
+          React.createElement('div', { className: 'text-center mb-8' },
+            React.createElement('h3', { className: `font-semibold mb-6 ${darkMode ? 'text-[#F5E6C8]' : 'text-[#2D5016]'}` }, 'Descoberta Fenotípica'),
+            React.createElement('div', { className: 'grid grid-cols-1 md:grid-cols-2 gap-8' },
+              React.createElement('div', { className: `p-6 rounded-2xl border ${darkMode ? 'bg-[#1a2b12]/60 border-[#2D5016]/30' : 'bg-white/60 border-[#2D5016]/20'}` },
+                React.createElement('div', { className: 'text-6xl mb-4' }, '🌱'),
+                React.createElement('h4', { className: `font-semibold mb-2 ${darkMode ? 'text-[#F5E6C8]' : 'text-[#2D5016]'}` }, 'Controle'),
+                React.createElement('p', { className: `text-sm ${darkMode ? 'text-[#F5E6C8]/60' : 'text-[#8B4513]/80'}` }, 'Raízes normais', React.createElement('br'), 'Pelos radiculares típicos')
+              ),
+              React.createElement('div', { className: `p-6 rounded-2xl border-2 ${darkMode ? 'bg-[#D4A017]/10 border-[#D4A017]/50' : 'bg-[#D4A017]/5 border-[#D4A017]/50'}` },
+                React.createElement('div', { className: 'text-6xl mb-4' }, '🌿'),
+                React.createElement('h4', { className: `font-semibold mb-2 ${darkMode ? 'text-[#D4A017]' : 'text-[#8B4513]'}` }, 'EEB-HT 12,5 mg/L'),
+                React.createElement('p', { className: `text-sm ${darkMode ? 'text-[#F5E6C8]/80' : 'text-[#2D5016]/80'}` },
+                  React.createElement('strong', { className: 'text-[#D4A017]' }, 'Pelos radiculares PREOCES'), ' (dia 1)', React.createElement('br'),
+                  'Diferenciação epidérmica acelerada'
+                )
+              )
+            ),
+            React.createElement('div', { className: `mt-6 p-4 rounded-xl ${darkMode ? 'bg-[#2D5016]/20' : 'bg-[#2D5016]/5'}` },
+              React.createElement('p', { className: `text-sm ${darkMode ? 'text-[#4a7a2e]' : 'text-[#2D5016]'}` },
+                React.createElement('strong', null, 'Mecanismo proposto:'), ' ROS + auxina + etileno → diferenciação epidérmica acelerada'
+              )
+            )
           ),
+          // EC50 cards
           React.createElement('div', { className: 'grid grid-cols-1 md:grid-cols-2 gap-6' },
             React.createElement('div', { className: `p-6 rounded-2xl border ${darkMode ? 'bg-[#1a2b12]/60 border-[#2D5016]/30' : 'bg-white/60 border-[#2D5016]/20'}` },
               React.createElement('h3', { className: `font-semibold mb-2 ${darkMode ? 'text-[#F5E6C8]' : 'text-[#2D5016]'}` }, 'EEB-HT — Hormese'),
@@ -571,13 +587,7 @@ function App() {
               React.createElement('div', { className: 'text-5xl font-bold text-[#2D5016] mb-2' }, React.createElement(CountUp, { end: 3611.86, decimals: 2 })),
               React.createElement('p', { className: `text-xs ${darkMode ? 'text-[#F5E6C8]/60' : 'text-[#2D5016]/60'}` }, 'mg/L (EC50 extrapolado)')
             )
-          ),
-          React.createElement(AcademicImage, {
-            src: IMAGES.controleCuSO4,
-            alt: 'CuSO4 esverdeamento',
-            caption: 'Figura 22: Esverdeamento precoce em plântulas expostas ao CuSO₄',
-            darkMode
-          })
+          )
         )
       ),
 

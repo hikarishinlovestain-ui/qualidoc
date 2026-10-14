@@ -46,6 +46,7 @@ export default function Block6Curves({ darkMode }: Props) {
     { label: 'IVG — EEB-BM', id: 3 },
     { label: 'Raiz — EEB-BM', id: 4 },
     { label: 'Fenótipo', id: 5 },
+    { label: 'Imagens', id: 6 },
   ];
 
   const axisColor = darkMode ? '#4a7a2e' : '#2D5016';
@@ -240,60 +241,72 @@ export default function Block6Curves({ darkMode }: Props) {
             </div>
           )}
 
-          {/* Tab 5: Phenotypic */}
+          {/* Tab 5: Phenotypic - Original cards */}
           {activeTab === 5 && (
-            <div>
-              <h3 className={`font-semibold mb-6 text-center ${textColor}`}>Descoberta Fenotípica</h3>
-              
-              {/* Comparative image */}
-              <AcademicImage
-                src={IMAGES.pelosRadiculares}
-                alt="Comparação de radículas: Controle vs EEB-HT"
-                caption="Figura 17: Observação morfológica evidenciando a formação precoce de pelos radiculares em L. sativa tratada com EEB-HT (a) vs. Controle (b)"
-                className="mb-6"
-                darkMode={darkMode}
-              />
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                <div className={`p-4 rounded-xl border ${darkMode ? 'bg-[#1a2b12]/60 border-[#2D5016]/30' : 'bg-white/60 border-[#2D5016]/20'}`}>
-                  <h4 className={`font-semibold mb-2 ${darkMode ? 'text-[#F5E6C8]' : 'text-[#2D5016]'}`}>
-                    🌱 Controle
-                  </h4>
+            <div className="text-center">
+              <h3 className={`font-semibold mb-6 ${textColor}`}>Descoberta Fenotípica</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div className={`p-6 rounded-2xl border ${darkMode ? 'bg-[#1a2b12]/60 border-[#2D5016]/30' : 'bg-white/60 border-[#2D5016]/20'}`}>
+                  <div className="text-6xl mb-4">🌱</div>
+                  <h4 className={`font-semibold mb-2 ${darkMode ? 'text-[#F5E6C8]' : 'text-[#2D5016]'}`}>Controle</h4>
                   <p className={`text-sm ${darkMode ? 'text-[#F5E6C8]/60' : 'text-[#8B4513]/80'}`}>
-                    Raízes normais com pelos radiculares típicos
+                    Raízes normais<br />Pelos radiculares típicos
                   </p>
                 </div>
                 <motion.div
-                  initial={{ scale: 0.95 }}
+                  initial={{ scale: 0.9 }}
                   animate={{ scale: 1 }}
-                  className={`p-4 rounded-xl border-2 ${darkMode ? 'bg-[#D4A017]/10 border-[#D4A017]/50' : 'bg-[#D4A017]/5 border-[#D4A017]/50'}`}
+                  className={`p-6 rounded-2xl border-2 ${darkMode ? 'bg-[#D4A017]/10 border-[#D4A017]/50' : 'bg-[#D4A017]/5 border-[#D4A017]/50'}`}
                 >
-                  <h4 className={`font-semibold mb-2 ${darkMode ? 'text-[#D4A017]' : 'text-[#8B4513]'}`}>
-                    🌿 EEB-HT 12,5 mg/L
-                  </h4>
+                  <div className="text-6xl mb-4">🌿</div>
+                  <h4 className={`font-semibold mb-2 ${darkMode ? 'text-[#D4A017]' : 'text-[#8B4513]'}`}>EEB-HT 12,5 mg/L</h4>
                   <p className={`text-sm ${darkMode ? 'text-[#F5E6C8]/80' : 'text-[#2D5016]/80'}`}>
-                    <strong className="text-[#D4A017]">Pelos radiculares PREOCES</strong> (dia 1) — diferenciação epidérmica acelerada
+                    <strong className="text-[#D4A017]">Pelos radiculares PREOCES</strong> (dia 1)<br />
+                    Diferenciação epidérmica acelerada
                   </p>
                 </motion.div>
               </div>
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.5 }}
+                className={`mt-6 p-4 rounded-xl ${darkMode ? 'bg-[#2D5016]/20' : 'bg-[#2D5016]/5'}`}
+              >
+                <p className={`text-sm ${darkMode ? 'text-[#4a7a2e]' : 'text-[#2D5016]'}`}>
+                  <strong>Mecanismo proposto:</strong> ROS + auxina + etileno → diferenciação epidérmica acelerada
+                </p>
+              </motion.div>
+            </div>
+          )}
 
-              {/* CuSO4 control */}
-              <AcademicImage
-                src={IMAGES.controleCuSO4}
-                alt="Esverdeamento precoce por CuSO₄"
-                caption="Figura 22: Esverdeamento precoce em plântulas expostas ao CuSO₄ (controle positivo de estresse)"
-                className="mb-6"
-                darkMode={darkMode}
-              />
+          {/* Tab 6: Experimental Images */}
+          {activeTab === 6 && (
+            <div>
+              <h3 className={`font-semibold mb-6 text-center ${textColor}`}>Registros Experimentais</h3>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <AcademicImage
+                  src={IMAGES.pelosRadiculares}
+                  alt="Comparação de radículas: Controle vs EEB-HT"
+                  caption="Figura 17: Formação precoce de pelos radiculares em L. sativa tratada com EEB-HT (a) vs. Controle (b)"
+                  darkMode={darkMode}
+                />
+                <AcademicImage
+                  src={IMAGES.controleCuSO4}
+                  alt="Esverdeamento precoce por CuSO₄"
+                  caption="Figura 22: Esverdeamento precoce em plântulas expostas ao CuSO₄ (controle positivo)"
+                  darkMode={darkMode}
+                />
+              </div>
 
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.5 }}
-                className={`mt-4 p-4 rounded-xl ${darkMode ? 'bg-[#2D5016]/20' : 'bg-[#2D5016]/5'}`}
+                className={`mt-6 p-4 rounded-xl text-center ${darkMode ? 'bg-[#2D5016]/20' : 'bg-[#2D5016]/5'}`}
               >
                 <p className={`text-sm ${darkMode ? 'text-[#4a7a2e]' : 'text-[#2D5016]'}`}>
-                  <strong>Mecanismo proposto:</strong> ROS + auxina + etileno → diferenciação epidérmica acelerada
+                  <strong>Observação:</strong> Plântulas de L. sativa tratadas com EEB-HT (12,5 mg/L) apresentam diferenciação epidérmica acelerada, com formação precoce de pelos radiculares visível já no dia 1.
                 </p>
               </motion.div>
             </div>
