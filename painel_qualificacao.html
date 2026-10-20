@@ -1,0 +1,1837 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Qualificação de Doutorado — Bioinsumos em Lactuca sativa L.</title>
+
+<!-- ===================== CDNs ===================== -->
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Merriweather:ital,wght@0,400;0,700;0,900;1,400&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollToPlugin.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+
+<script>
+/* Config Tailwind — paleta do projeto */
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        moss:   '#2D5A27',
+        mossdark:'#1d3a19',
+        gold:   '#D4AF37',
+        golddark:'#a8842a',
+        ink:    '#1F2937'
+      },
+      fontFamily: {
+        sans: ['Inter','ui-sans-serif','system-ui'],
+        serif:['Merriweather','Georgia','serif']
+      }
+    }
+  }
+}
+</script>
+
+<style>
+/* ===================== BASE / SLIDES ===================== */
+html,body{ height:100%; }
+body{
+  margin:0; overflow:hidden; background:#0e1a0c;
+  font-family:'Inter',sans-serif; color:#f5f5f4;
+  -webkit-font-smoothing:antialiased;
+}
+#deck{ position:relative; width:100vw; height:100vh; }
+.slide{
+  position:absolute; inset:0; width:100vw; height:100vh;
+  display:flex; align-items:center; justify-content:center;
+  padding:3.5rem 5.5rem 4.5rem; box-sizing:border-box;
+  visibility:hidden; opacity:0; overflow:hidden;
+  background:linear-gradient(160deg,#10231b 0%, #0e1a0c 55%, #141b10 100%);
+}
+.slide.active{ visibility:visible; z-index:2; }
+.slide-inner{ width:100%; max-width:1280px; max-height:100%; overflow-y:auto; overflow-x:hidden;
+  scrollbar-width:thin; scrollbar-color:rgba(212,175,55,.4) transparent; padding:.25rem; }
+.slide-inner::-webkit-scrollbar{ width:6px } .slide-inner::-webkit-scrollbar-thumb{ background:rgba(212,175,55,.35); border-radius:3px }
+
+h1,h2,h3,.font-academic{ font-family:'Merriweather',serif; }
+.title-slide h1{ font-size:clamp(1.6rem,3.4vw,3rem); line-height:1.25; }
+.slide h2.section-title{ font-size:clamp(1.4rem,2.6vw,2.2rem); color:#fff; }
+.goldline{ width:88px; height:4px; background:linear-gradient(90deg,#D4AF37,#2D5A27); border-radius:2px; }
+
+/* ===================== GLASSMORPHISM ===================== */
+.glass{
+  background:rgba(255,255,255,.07);
+  backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px);
+  border:1px solid rgba(255,255,255,.14);
+  border-radius:1rem;
+}
+.glass-strong{
+  background:rgba(20,32,18,.55);
+  backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
+  border:1px solid rgba(212,175,55,.28);
+  border-radius:1rem;
+}
+
+/* ===================== TOOLTIP HOVER (glass) ===================== */
+.hover-tip{ position:relative; cursor:help; }
+.hover-tip .tipbox{
+  position:absolute; left:50%; bottom:calc(100% + 12px); transform:translateX(-50%) translateY(8px);
+  width:min(420px,80vw); padding:1rem 1.1rem; z-index:60;
+  background:rgba(25,40,22,.72); backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px);
+  border:1px solid rgba(212,175,55,.35); border-radius:.9rem;
+  font-size:.85rem; line-height:1.45; color:#f3f4e9;
+  opacity:0; pointer-events:none; transition:opacity .28s ease, transform .28s ease;
+  box-shadow:0 18px 45px rgba(0,0,0,.45);
+}
+.hover-tip:hover .tipbox{ opacity:1; transform:translateX(-50%) translateY(0); }
+
+/* Cards com elevação no hover */
+.lift{ transition:transform .35s cubic-bezier(.2,.7,.3,1), box-shadow .35s; }
+.lift:hover{ transform:translateY(-8px) scale(1.015); box-shadow:0 24px 60px rgba(0,0,0,.5); }
+
+/* Quadrinhos que expandem no hover */
+.quad{ transition:transform .35s ease, background .35s ease, box-shadow .35s ease; }
+.quad:hover{ transform:translateY(-6px); background:rgba(255,255,255,.12); box-shadow:0 20px 50px rgba(0,0,0,.45); }
+.quad .quad-more{ max-height:0; overflow:hidden; transition:max-height .5s ease, opacity .5s ease; opacity:0; }
+.quad:hover .quad-more{ max-height:220px; opacity:1; }
+
+/* Imagens com zoom */
+.zoomable{ cursor:zoom-in; transition:filter .3s, transform .3s; }
+.zoomable:hover{ transform:scale(1.05); filter:brightness(1.06); }
+/* REGRA DE OURO — LIGHTBOX UNIVERSAL: TODAS as <img> do documento */
+img:not(#lbImg){ cursor:zoom-in; transition:transform .3s ease, filter .3s ease; }
+img:not(#lbImg):hover{ transform:scale(1.05); filter:brightness(1.06); }
+/* CORREÇÃO Seção 14 (Resultados — Germinação & Fitotoxicidade): as imagens dos
+   gráficos e placas de Petri precisam RECEBER o mouse para que o hover:scale-1.05
+   funcione e o clique abra o Lightbox. O pointer-events:none anterior bloqueava
+   ambos os comportamentos. */
+section[data-name="Resultados Germinação"] img{ pointer-events:auto !important; }
+section[data-name="Resultados Germinação"] figure{ overflow:visible; }
+/* Seção 12 (tabela fitoquímica): tooltip de fragmentação aparece no hover do NOME do composto */
+#fragTooltip{ transition:opacity .18s ease; }
+#fragTooltip.hidden{ display:none; }
+#fragTipImg{ cursor:zoom-in; }
+
+/* ===================== LIGHTBOX ===================== */
+#lightbox{
+  position:fixed; inset:0; z-index:100; display:none;
+  align-items:center; justify-content:center; padding:2rem;
+  background:rgba(0,0,0,.9); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px);
+}
+#lightbox.open{ display:flex; }
+#lightbox img{ max-width:90vw; max-height:90vh; cursor:default; border-radius:.8rem; box-shadow:0 30px 90px rgba(0,0,0,.7); border:1px solid rgba(212,175,55,.35); }
+#lightbox .lb-cap{ position:absolute; bottom:1.2rem; left:50%; transform:translateX(-50%); font-size:.85rem; color:#d6d3c9; }
+#lightbox .lb-close{ position:absolute; top:1.2rem; right:1.6rem; font-size:1.6rem; color:#fff; cursor:pointer; background:rgba(255,255,255,.1); border-radius:999px; width:44px;height:44px; display:flex;align-items:center;justify-content:center; }
+
+/* ===================== NAVEGAÇÃO ===================== */
+.nav-arrow{
+  position:fixed; top:50%; transform:translateY(-50%); z-index:70;
+  width:52px; height:52px; border-radius:999px; display:flex; align-items:center; justify-content:center;
+  background:rgba(255,255,255,.08); border:1px solid rgba(212,175,55,.35);
+  backdrop-filter:blur(8px); color:#D4AF37; font-size:1.15rem; cursor:pointer;
+  transition:background .25s, transform .25s;
+}
+.nav-arrow:hover{ background:rgba(212,175,55,.25); transform:translateY(-50%) scale(1.08); }
+#prevBtn{ left:14px } #nextBtn{ right:14px }
+#progress{ position:fixed; top:0; left:0; height:4px; background:linear-gradient(90deg,#D4AF37,#7ea24b); z-index:80; width:0%; transition:width .5s ease; }
+#counter{ position:fixed; bottom:14px; left:50%; transform:translateX(-50%); z-index:70;
+  font-size:.78rem; letter-spacing:.12em; color:#cfd4c4; background:rgba(0,0,0,.35);
+  padding:.3rem .9rem; border-radius:999px; border:1px solid rgba(255,255,255,.12); backdrop-filter:blur(6px);}
+#dotnav{ position:fixed; right:16px; top:50%; transform:translateY(-50%); z-index:69; display:flex; flex-direction:column; gap:8px;}
+#dotnav .dot{ width:9px;height:9px;border-radius:999px;background:rgba(255,255,255,.25); cursor:pointer; transition:all .3s;}
+#dotnav .dot.on{ background:#D4AF37; transform:scale(1.35); }
+
+/* ===================== ABAS ===================== */
+.tab-btn{ position:relative; padding:.65rem 1.1rem; border-radius:.7rem .7rem 0 0; cursor:pointer;
+  color:#cfd6c2; font-weight:600; font-size:.9rem; transition:color .25s, background .25s; }
+.tab-btn:hover{ color:#fff; }
+.tab-btn.on{ color:#D4AF37; background:rgba(212,175,55,.1); }
+.tab-panel{ display:none; }
+.tab-panel.on{ display:block; }
+
+/* ===================== TIMELINE ===================== */
+.tl-item{ position:relative; padding-left:2.4rem; }
+.tl-item::before{ content:''; position:absolute; left:.62rem; top:0; bottom:-1.4rem; width:2px; background:linear-gradient(#D4AF37,#2D5A27); }
+.tl-item:last-child::before{ display:none; }
+.tl-dot{ position:absolute; left:0; top:.15rem; width:1.3rem; height:1.3rem; border-radius:999px;
+  background:#0e1a0c; border:2px solid #D4AF37; display:flex; align-items:center; justify-content:center; font-size:.6rem; color:#D4AF37;}
+
+/* ===================== CRONOGRAMA ===================== */
+.cron-row{ display:grid; grid-template-columns:2.2rem 1fr 12rem 9.5rem; gap:1rem; align-items:center;
+  padding:.7rem 1rem; border-radius:.8rem; transition:background .3s, transform .3s;}
+.cron-row:hover{ background:rgba(255,255,255,.07); transform:translateX(4px); }
+.badge-done{ background:rgba(45,90,39,.35); border:1px solid #4b7a3f; color:#bfe3a8; }
+.badge-future{ background:rgba(212,175,55,.12); border:1px solid rgba(212,175,55,.45); color:#eccf6f; }
+
+/* ===================== REFERÊNCIAS — créditos de filme ===================== */
+#refWindow{ position:relative; height:24rem; overflow:hidden; border-radius:1rem; }
+#refScroll{ animation:credits 90s linear infinite; will-change:transform; }
+#refWindow:hover #refScroll{ animation-play-state:paused; }
+@keyframes credits{ 0%{ transform:translateY(100%);} 100%{ transform:translateY(-105%);} }
+
+/* ===================== FÓRMULAS ===================== */
+.formula{ font-family:'Merriweather',serif; font-style:italic; letter-spacing:.02em; }
+.frac{ display:inline-flex; flex-direction:column; text-align:center; vertical-align:middle; margin:0 .25rem;}
+.frac .num{ border-bottom:1.5px solid #D4AF37; padding:0 .4rem .1rem; }
+.frac .den{ padding:.1rem .4rem 0; }
+sub,sup{ font-size:.68em; }
+
+/* Esquema animado da placa (Seção 8) */
+.petri{ position:relative; width:170px; height:170px; border-radius:999px; border:3px solid rgba(212,175,55,.5);
+  background:radial-gradient(circle at 35% 30%, rgba(255,255,255,.14), rgba(255,255,255,.04)); }
+.petri .seed{ position:absolute; width:9px; height:5px; border-radius:999px; background:#e8d9a8; box-shadow:0 0 4px rgba(0,0,0,.4);}
+.wheel{ scroll-snap-type:none; }
+
+/* vídeo hover container */
+.vhover{ transition:transform .45s cubic-bezier(.2,.7,.3,1); transform-origin:center; }
+.badge-obrig{ background:linear-gradient(90deg,rgba(212,175,55,.9),rgba(168,132,42,.9)); color:#14210f; font-weight:700; }
+.step-card{ cursor:pointer; }
+.comp-name{ cursor:help; }
+kbd{ background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.25); border-bottom-width:2px; border-radius:5px; padding:0 .4rem; font-size:.75rem; }
+</style>
+</head>
+
+<body>
+
+<div id="progress"></div>
+<button id="prevBtn" class="nav-arrow" aria-label="Slide anterior"><i class="fa-solid fa-chevron-left"></i></button>
+<button id="nextBtn" class="nav-arrow" aria-label="Próximo slide"><i class="fa-solid fa-chevron-right"></i></button>
+<div id="dotnav"></div>
+<div id="counter">1 / 19</div>
+
+<!-- Lightbox global -->
+<div id="lightbox" role="dialog" aria-modal="true">
+  <div class="lb-close" onclick="closeLightbox()"><i class="fa-solid fa-xmark"></i></div>
+  <img id="lbImg" src="" alt="Ampliação">
+  <div class="lb-cap" id="lbCap"></div>
+</div>
+
+<main id="deck">
+
+<!-- ============================================================
+     SEÇÃO 1 — CAPA
+============================================================ -->
+<section class="slide title-slide active" data-name="Capa">
+  <div class="absolute inset-0 bg-cover bg-center opacity-20"
+       style="background-image:url('https://raw.githubusercontent.com/hikarishinlovestain-ui/qualidoc/main/l%C3%BApulo.jpg');"></div>
+  <div class="absolute inset-0" style="background:linear-gradient(180deg,rgba(10,18,8,.55),rgba(10,18,8,.92));"></div>
+
+  <div class="relative z-10 text-center w-full max-w-5xl">
+    <div class="hero-el flex items-center justify-center gap-3 mb-6">
+      <span class="goldline"></span>
+      <span class="uppercase tracking-[0.35em] text-gold text-xs font-semibold">Qualificação de Doutorado</span>
+      <span class="goldline"></span>
+    </div>
+    <h1 class="hero-el font-serif font-black text-white leading-tight mb-6">
+      Modelagem metabólica <span class="text-gold italic">in silico</span> e validação agronômica do uso de
+      trub quente e bagaço de malte como bioinsumos em <em>Lactuca sativa</em> L.
+    </h1>
+    <p class="hero-el text-lg md:text-xl text-emerald-100/80 mb-8 font-light">
+      Painel de Qualificação — Modelagem Metabólica &amp; Bioinsumos
+    </p>
+    <div class="hero-el glass inline-block px-8 py-5 rounded-2xl">
+      <p class="text-base"><i class="fa-solid fa-user-pen text-gold mr-2"></i>Autor: <strong>Hikari Shin Lovestain C. R. Lima</strong></p>
+      <p class="text-sm mt-2 text-stone-300"><i class="fa-solid fa-graduation-cap text-gold mr-2"></i>Orientador: Prof. Dr. Gustavo Henrique Bianco de Souza
+        &nbsp;|&nbsp; <i class="fa-solid fa-flask text-gold mr-1"></i>Co-Orientadora: Drª Regislainy Gomes da Silva</p>
+    </div>
+    <p class="hero-el mt-10 text-xs text-stone-400"><kbd><i class="fa-solid fa-arrow-right"></i></kbd> <kbd><i class="fa-solid fa-arrow-left"></i></kbd> ou roda do mouse para navegar</p>
+  </div>
+</section>
+
+<!-- ============================================================
+     SEÇÃO 2 — O PROBLEMA & O LÚPULO
+============================================================ -->
+<section class="slide" data-name="O Problema & o Lúpulo">
+  <div class="slide-inner">
+    <h2 class="section-title font-serif mb-1 reveal">O Problema &amp; O Lúpulo</h2>
+    <div class="goldline mb-6 reveal"></div>
+
+    <div class="grid md:grid-cols-2 gap-8 items-start">
+      <!-- Coluna esquerda: imagem -->
+      <figure class="reveal glass p-3 rounded-2xl">
+        <img src="https://raw.githubusercontent.com/hikarishinlovestain-ui/qualidoc/main/l%C3%BApulo.jpg"
+             alt="Lúpulo (Humulus lupulus)" class="zoomable w-full h-72 object-cover rounded-xl"
+             data-cap="Lúpulo (Humulus lupulus) — Fonte: Centre Jardin Lac Palletier">
+        <figcaption class="text-xs text-stone-400 mt-2 px-1">Fonte: Centre Jardin Lac Palletier</figcaption>
+      </figure>
+
+      <!-- Coluna direita: quadro explicativo -->
+      <div class="reveal space-y-4">
+        <div class="glass-strong p-6 rounded-2xl">
+          <h3 class="font-serif text-gold text-lg mb-3"><i class="fa-solid fa-circle-question mr-2"></i>Por que o lúpulo entra na cerveja?</h3>
+          <p class="text-sm leading-relaxed text-stone-200">
+            O lúpulo é adicionado durante a <strong>fervura mosto</strong>, conferindo aroma, amargor e estabilidade à cerveja.
+            Seus polifenóis e resinas precipitam proteínas durante a fervura, gerando o principal resíduo sólido dessa etapa:
+            o <span class="text-gold font-semibold">trub quente (Hot Trub)</span>. Assim, cada litro de cerveja carrega uma
+            corrente de coprodutos — e é aí que nasce a oportunidade dos bioinsumos.
+          </p>
+        </div>
+        <div class="badge-obrig inline-block px-4 py-2 rounded-lg text-sm shadow-lg">
+          <i class="fa-solid fa-scale-balanced mr-2"></i>Obrigatoriedade pela legislação brasileira: Decreto 9.902/2019
+        </div>
+        <p class="text-xs text-stone-400 leading-relaxed">
+          O Decreto nº 9.902/2019 regulamenta a produção e comercialização da cerveja no Brasil, definindo a cerveja como bebida
+          obtida pela fermentação alcoólica do mosto cervejário com emprego de lúpulo — o que garante escala contínua e previsível
+          dos resíduos estudados.
+        </p>
+      </div>
+    </div>
+
+    <!-- Fluxograma abaixo -->
+    <div class="reveal mt-8 glass p-4 rounded-2xl">
+      <p class="text-sm text-stone-300 mb-3"><i class="fa-solid fa-diagram-project text-gold mr-2"></i>Fluxograma esquemático da produção de cerveja — onde se geram os coprodutos:</p>
+      <img src="https://raw.githubusercontent.com/hikarishinlovestain-ui/qualidoc/main/Processo%20de%20fabrica%C3%A7%C3%A3o%20de%20cerveja.jpg"
+           alt="Fluxograma de fabricação de cerveja" class="zoomable w-full max-h-64 object-contain rounded-lg bg-white/95 p-2"
+           data-cap="Processo de fabricação de cerveja">
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     SEÇÃO 3 — OS COPRODUTOS DA INDÚSTRIA CERVEJEIRA
+============================================================ -->
+<section class="slide" data-name="Coprodutos">
+  <div class="slide-inner">
+    <h2 class="section-title font-serif mb-1 reveal">Os Coprodutos da Indústria Cervejeira</h2>
+    <div class="goldline mb-8 reveal"></div>
+
+    <div class="grid md:grid-cols-2 gap-8">
+      <!-- Card 1: Bagaço de Malte -->
+      <article class="lift reveal glass rounded-2xl overflow-hidden">
+        <img src="https://raw.githubusercontent.com/hikarishinlovestain-ui/qualidoc/main/BSG.jpg"
+             alt="Bagaço de Malte (Spent Grain)" class="zoomable w-full h-56 object-cover"
+             data-cap="Bagaço de Malte (BSG)">
+        <div class="p-6">
+          <h3 class="font-serif text-gold text-xl mb-2"><i class="fa-solid fa-wheat-awn mr-2"></i>Bagaço de Malte (BSG)</h3>
+          <p class="text-sm leading-relaxed text-stone-200">Resíduo sólido principal da brassagem — cerca de <strong>85% do volume total de resíduos</strong> da indústria cervejeira. Matriz rica em <span class="text-emerald-300">fibras e proteínas</span>, além de lipídios e minerais residuais.</p>
+          <p class="text-xs text-stone-400 mt-3">Fonte: upcycled food, Inc.</p>
+        </div>
+      </article>
+
+      <!-- Card 2: Trub Quente -->
+      <article class="lift reveal glass rounded-2xl overflow-hidden">
+        <img src="https://raw.githubusercontent.com/hikarishinlovestain-ui/qualidoc/main/hot-trub.jpg"
+             alt="Trub Quente (Hot Trub)" class="zoomable w-full h-56 object-cover"
+             data-cap="Trub Quente (Hot Trub)">
+        <div class="p-6">
+          <h3 class="font-serif text-gold text-xl mb-2"><i class="fa-solid fa-kettle mr-2"></i><i class="fa-solid fa-mug-hot mr-1"></i>Trub Quente (Hot Trub)</h3>
+          <p class="text-sm leading-relaxed text-stone-200">Resíduo da etapa de <strong>fervura</strong>: complexo de <span class="text-emerald-300">proteínas coaguladas, polifenóis e resíduos de lúpulo</span> precipitados durante a clarificação do mosto.</p>
+          <p class="text-xs text-stone-400 mt-3">Fonte: MoreBeer!</p>
+        </div>
+      </article>
+    </div>
+
+    <p class="reveal text-center text-xs text-stone-400 mt-8">Ambos os fluxos são gerados em toneladas por dia nas cervejarias — destino atual limitado a ração animal de baixo valor agregado ou descarte.</p>
+  </div>
+</section>
+
+<!-- ============================================================
+     SEÇÃO 4 — EMBASAMENTO TEÓRICO (4 QUADRINHOS INTERATIVOS)
+============================================================ -->
+<section class="slide" data-name="Embasamento Teórico">
+  <div class="slide-inner">
+    <h2 class="section-title font-serif mb-1 reveal">Embasamento Teórico</h2>
+    <div class="goldline mb-6 reveal"></div>
+    <p class="reveal text-sm text-stone-400 mb-6">Passe o mouse sobre cada quadrinho para expandir a explicação.</p>
+
+    <div class="grid md:grid-cols-2 gap-6">
+      <div class="quad hover-tip glass-strong p-6 reveal">
+        <h3 class="font-serif text-gold mb-2"><i class="fa-solid fa-seedling mr-2"></i>Bagaço de malte</h3>
+        <p class="text-sm text-stone-200">Usado historicamente na alimentação animal; estudado para biopolímeros, enzimas industriais e antioxidantes naturais.</p>
+        <div class="quad-more text-xs text-stone-300 mt-3 leading-relaxed">
+          Utilizado na alimentação animal (devido ao seu valor nutricional) e estudado para a produção de
+          <strong>biopolímeros</strong>, <strong>enzimas industriais</strong> e <strong>extração de antioxidantes naturais</strong>
+          (para alimentos funcionais e cosméticos).
+        </div>
+        <div class="tipbox">Valorização do BSG: matriz lignocelulósica com proteína residual — plataforma para biomateriais e ingredientes funcionais.</div>
+      </div>
+
+      <div class="quad hover-tip glass-strong p-6 reveal">
+        <h3 class="font-serif text-gold mb-2"><i class="fa-solid fa-cauldron mr-2"></i>Trub quente</h3>
+        <p class="text-sm text-stone-200">Aplicado em biopolímeros e predominantemente como fertilizante orgânico via compostagem.</p>
+        <div class="quad-more text-xs text-stone-300 mt-3 leading-relaxed">
+          Aplicado em biopolímeros e predominantemente como <strong>fertilizante orgânico</strong> (principalmente via compostagem);
+          <span class="text-rose-300">não é indicado para alimentação animal</span> devido ao amargor decorrente do lúpulo.
+        </div>
+        <div class="tipbox">O perfil proteico + polifenólico do trub o torna candidato a bioestimulante — mas o amargor do lúpulo veta a rota zootécnica.</div>
+      </div>
+
+      <div class="quad hover-tip glass-strong p-6 reveal">
+        <h3 class="font-serif text-gold mb-2"><i class="fa-solid fa-tractor mr-2"></i>Investigação agrícola</h3>
+        <p class="text-sm text-stone-200">Avalia efeitos da aplicação dos resíduos no cultivo de plantas, com foco no trub quente.</p>
+        <div class="quad-more text-xs text-stone-300 mt-3 leading-relaxed">
+          Avaliação dos efeitos da aplicação desses resíduos (com foco no trub quente) no cultivo de plantas, buscando identificar
+          <strong>potencial bioestimulante</strong>, <strong>fitotoxicidade</strong>, <strong>efeito herbicida</strong> e <strong>faixas de dosagem</strong>.
+        </div>
+        <div class="tipbox">Objetivo: delimitar janelas de dose onde o extrato estimula (bioinsumo) e onde inibe (fitotoxidade/herbicida).</div>
+      </div>
+
+      <div class="quad hover-tip glass-strong p-6 reveal">
+        <h3 class="font-serif text-gold mb-2"><i class="fa-solid fa-leaf mr-2"></i>Organismo modelo</h3>
+        <p class="text-sm text-stone-200"><em>Lactuca sativa</em> L. — alface — escolhida pela padronização internacional de bioensaios.</p>
+        <div class="quad-more text-xs text-stone-300 mt-3 leading-relaxed">
+          Escolha da alface (<em>Lactuca sativa</em>) devido à disponibilidade de bioensaios padronizados de
+          <strong>germinação</strong>, <strong>alongamento radicular</strong> e <strong>crescimento inicial</strong> (<strong>ISO 11269-2</strong>).
+        </div>
+        <div class="tipbox">Alta sensibilidade, ciclo curto e normas ISO/OCDE tornam a alface padrão-ouro para triagem ecotoxicológica.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     SEÇÃO 5 — HIPÓTESES CENTRAIS
+============================================================ -->
+<section class="slide" data-name="Hipóteses">
+  <div class="slide-inner">
+    <h2 class="section-title font-serif mb-1 reveal">4 Hipóteses que guiam esta investigação</h2>
+    <div class="goldline mb-8 reveal"></div>
+
+    <div class="space-y-5" id="hipList">
+      <div class="hyp glass-strong p-5 rounded-2xl flex gap-5 items-start lift">
+        <div class="shrink-0 w-12 h-12 rounded-full bg-gold/20 border border-gold/50 flex items-center justify-center font-serif font-bold text-gold text-lg">H1</div>
+        <p class="text-sm md:text-base leading-relaxed text-stone-100">O extrato etanólico de <strong class="text-gold">trub quente (EEB-HT)</strong> produz uma resposta <strong>dose-resposta bifásica (hormese)</strong>, promovendo o crescimento em baixas concentrações via modulação de vias de defesa e sinalização auxínica, e inibindo-o em doses elevadas.</p>
+      </div>
+      <div class="hyp glass-strong p-5 rounded-2xl flex gap-5 items-start lift">
+        <div class="shrink-0 w-12 h-12 rounded-full bg-gold/20 border border-gold/50 flex items-center justify-center font-serif font-bold text-gold text-lg">H2</div>
+        <p class="text-sm md:text-base leading-relaxed text-stone-100">O extrato de <strong class="text-gold">bagaço de malte (EEB-BM)</strong> atua como condicionante ou fertilizante, apresentando curva de crescimento <strong>linear ou de saturação assintótica</strong>, sem toxicidade aguda na faixa de concentrações avaliadas.</p>
+      </div>
+      <div class="hyp glass-strong p-5 rounded-2xl flex gap-5 items-start lift">
+        <div class="shrink-0 w-12 h-12 rounded-full bg-gold/20 border border-gold/50 flex items-center justify-center font-serif font-bold text-gold text-lg">H3</div>
+        <p class="text-sm md:text-base leading-relaxed text-stone-100">A <strong>adaptação paramétrica do modelo metabólico AraGEM</strong> para <em>Lactuca sativa</em> permite gerar predições quantitativas que <strong>priorizam faixas de dose</strong> para validação experimental, compatíveis com os marcadores biométricos observados.</p>
+      </div>
+      <div class="hyp glass-strong p-5 rounded-2xl flex gap-5 items-start lift">
+        <div class="shrink-0 w-12 h-12 rounded-full bg-gold/20 border border-gold/50 flex items-center justify-center font-serif font-bold text-gold text-lg">H4</div>
+        <p class="text-sm md:text-base leading-relaxed text-stone-100">Os compostos bioativos dos resíduos exercem <strong>atividade inibitória seletiva contra fitopatógenos edáficos</strong>.</p>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- ============================================================
+     SEÇÃO 6 — FLUXO METODOLÓGICO (DO RESÍDUO AOS TESTES)
+============================================================ -->
+<section class="slide" data-name="Fluxo Metodológico">
+  <div class="slide-inner">
+    <h2 class="section-title font-serif mb-1 reveal">Fluxo Metodológico — do resíduo aos testes</h2>
+    <div class="goldline mb-4 reveal"></div>
+    <p class="reveal text-sm text-stone-400 mb-6">Passe o mouse sobre cada etapa para ver o detalhamento completo.</p>
+
+    <div class="grid md:grid-cols-2 gap-x-10 gap-y-5">
+      <!-- 1 -->
+      <div class="tl-item hover-tip reveal">
+        <span class="tl-dot"><i class="fa-solid fa-temperature-three-quarters"></i></span>
+        <h3 class="font-serif text-gold">1. Obtenção e Secagem</h3>
+        <p class="text-sm text-stone-300 mt-1">Os coprodutos são recebidos e estabilizados por secagem térmica controlada.</p>
+        <div class="tipbox"><strong class="text-gold">Secagem térmica a 45&nbsp;°C por 4 dias.</strong> Reduz a atividade de água, interrompe processos degradativos e padroniza a biomassa para a extração.</div>
+      </div>
+      <!-- 2 -->
+      <div class="tl-item hover-tip reveal">
+        <span class="tl-dot"><i class="fa-solid fa-flask-vial"></i></span>
+        <h3 class="font-serif text-gold">2. Maceração</h3>
+        <p class="text-sm text-stone-300 mt-1">Extração sólido-líquido assistida por ultrassom.</p>
+        <div class="tipbox">O protocolo de extração adotou <strong class="text-gold">maceração assistida por cavitação ultrassônica</strong>. 15&nbsp;g de material seco (Balança Shimadzu UX4200H) submerso em 150&nbsp;mL de etanol absoluto (96ºGL), submetido a 3 ciclos de 30&nbsp;min em ultrassom (40&nbsp;kHz), filtrado em papel de filtro.</div>
+      </div>
+      <!-- 3 -->
+      <div class="tl-item hover-tip reveal">
+        <span class="tl-dot"><i class="fa-solid fa-circle-notch"></i></span>
+        <h3 class="font-serif text-gold">3. Concentração</h3>
+        <p class="text-sm text-stone-300 mt-1">Remoção do solvente sob vácuo.</p>
+        <img src="https://raw.githubusercontent.com/hikarishinlovestain-ui/qualidoc/main/evaporador%20rotativo.jpg"
+             alt="Evaporador rotativo" class="zoomable mt-2 w-full h-40 object-contain bg-white/90 rounded-lg border border-gold/30 p-1"
+             data-cap="Evaporador rotativo — Fonte: Do Autor/Gemini">
+        <div class="tipbox">Filtrados concentrados em <strong class="text-gold">evaporador rotativo Fisatom a 60&nbsp;°C sob pressão negativa</strong> em bomba de vácuo Buchi V-700. <em>(Fonte da imagem: Do Autor/Gemini)</em></div>
+      </div>
+      <!-- 4 -->
+      <div class="tl-item hover-tip reveal">
+        <span class="tl-dot"><i class="fa-solid fa-snowflake"></i></span>
+        <h3 class="font-serif text-gold">4. Secagem</h3>
+        <p class="text-sm text-stone-300 mt-1">Obtenção da resina sólida.</p>
+        <img src="https://raw.githubusercontent.com/hikarishinlovestain-ui/qualidoc/main/dessecador.jpg"
+             alt="Dessecador com sílica" class="zoomable mt-2 w-full h-40 object-contain bg-white/90 rounded-lg border border-gold/30 p-1"
+             data-cap="Dessecador com sílica sob vácuo — Fonte: Do Autor/Gemini">
+        <div class="tipbox">Fração etanólica concentrada seca em <strong class="text-gold">dessecadores com sílica sob vácuo estático</strong>, até formação de resina sólida. <em>(Fonte da imagem: Do Autor/Gemini)</em></div>
+      </div>
+      <!-- 5 -->
+      <div class="tl-item hover-tip reveal">
+        <span class="tl-dot"><i class="fa-solid fa-chart-line"></i></span>
+        <h3 class="font-serif text-gold">5. Caracterização (CLAE-DAD-EM/EM)</h3>
+        <p class="text-sm text-stone-300 mt-1">Perfil químico dos extratos.</p>
+        <div class="tipbox">Extratos ressuspendidos (<strong class="text-gold">2&nbsp;mg/mL em metanol HPLC</strong>), filtrados (0,2&nbsp;µm) e analisados. Anotação baseada em <strong>tempo de retenção, área, massa exata, fórmula iônica e compatibilidade quimiotaxonômica</strong>.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     SEÇÃO 7 — CURADORIA AraGEM (4 ABAS + VÍDEO LOOP)
+============================================================ -->
+<section class="slide" data-name="Curadoria AraGEM">
+  <div class="slide-inner">
+    <h2 class="section-title font-serif mb-1 reveal">Curadoria do Modelo Metabólico AraGEM</h2>
+    <div class="goldline mb-5 reveal"></div>
+
+    <div class="grid lg:grid-cols-[1fr_360px] gap-6 items-start">
+      <!-- Coluna das abas -->
+      <div class="reveal">
+        <div class="flex flex-wrap gap-1 border-b border-white/15" id="tabbar">
+          <button class="tab-btn on" data-tab="t1"><i class="fa-solid fa-magnifying-glass-dna mr-1"></i>Pipeline Detetive Molecular</button>
+          <button class="tab-btn" data-tab="t2"><i class="fa-solid fa-route mr-1"></i>Mapa Metabólico</button>
+          <button class="tab-btn" data-tab="t3"><i class="fa-solid fa-square-root-variable mr-1"></i>A Matemática da Vida (FBA)</button>
+          <button class="tab-btn" data-tab="t4"><i class="fa-solid fa-vials mr-1"></i>Camada Dose-Resposta</button>
+        </div>
+
+        <div class="glass-strong p-6 rounded-b-2xl rounded-tr-2xl min-h-[300px]">
+          <!-- ABA 1 -->
+          <div class="tab-panel on" id="t1">
+            <h3 class="font-serif text-gold mb-3">Pipeline de Detetive Molecular</h3>
+            <div class="flex flex-wrap items-center gap-2 text-xs font-semibold mb-5">
+              <span class="px-3 py-1.5 rounded-lg bg-moss/40 border border-emerald-400/30">Dados de sequência</span><i class="fa-solid fa-arrow-right text-gold"></i>
+              <span class="px-3 py-1.5 rounded-lg bg-moss/40 border border-emerald-400/30">Comparação com referências</span><i class="fa-solid fa-arrow-right text-gold"></i>
+              <span class="px-3 py-1.5 rounded-lg bg-moss/40 border border-emerald-400/30">Identificação de candidatos</span><i class="fa-solid fa-arrow-right text-gold"></i>
+              <span class="px-3 py-1.5 rounded-lg bg-moss/40 border border-emerald-400/30">Validação</span><i class="fa-solid fa-arrow-right text-gold"></i>
+              <span class="px-3 py-1.5 rounded-lg bg-moss/40 border border-emerald-400/30">Filtragem</span><i class="fa-solid fa-arrow-right text-gold"></i>
+              <span class="px-3 py-1.5 rounded-lg bg-gold/20 border border-gold/50 text-gold">Mapeamento gene–enzima–reação</span>
+            </div>
+            <ul class="space-y-2 text-sm text-stone-200">
+              <li><i class="fa-solid fa-database text-gold mr-2"></i><strong>Mineração de homólogos</strong> — varredura de bases proteicas de <em>Lactuca sativa</em> contra as isoenzimas do AraGEM.</li>
+              <li><i class="fa-solid fa-align-left text-gold mr-2"></i><strong>BLASTp</strong> — busca de similaridade de sequência com cutoffs de identidade/E-value.</li>
+              <li><i class="fa-solid fa-arrows-left-right text-gold mr-2"></i><strong>Reciprocal Best Hit (RBH)</strong> — melhor hit recíproco para evitar ortólogos espúrios (parálogos).</li>
+              <li><i class="fa-solid fa-puzzle-piece text-gold mr-2"></i><strong>HMMER / Pfam</strong> — confirmação por domínios funcionais conservados (motivos catalíticos).</li>
+            </ul>
+          </div>
+
+          <!-- ABA 2 -->
+          <div class="tab-panel" id="t2">
+            <h3 class="font-serif text-gold mb-3">Mapa Metabólico Interativo — marcadores no modelo</h3>
+            <div class="space-y-4 text-sm">
+              <div class="hover-tip glass p-4 rounded-xl">
+                <p class="text-stone-100"><i class="fa-solid fa-location-dot text-gold mr-2"></i><strong>Hordenina</strong> — Via da Tirosina · Portões de transporte <em>NPF / PTR / ABC</em></p>
+                <div class="tipbox">A hordenina (alcaloide do malte/trub) entra como derivado da tirosina; sua translocação depende de famílias de transportadores NPF/PTR/ABC curadas manualmente no modelo.</div>
+              </div>
+              <div class="hover-tip glass p-4 rounded-xl">
+                <p class="text-stone-100"><i class="fa-solid fa-location-dot text-gold mr-2"></i><strong>Ácido Linoleico</strong> — Peroxisomo · <em>FAX1 → β-ox → ICL → MLS</em> → Jasmonatos</p>
+                <div class="tipbox">Rota peroxissomal de β-oxidação que conecta o ácido linoleico (bagaço) à biossíntese de jasmonatos — sinalizadores de defesa e crescimento radicular.</div>
+              </div>
+              <div class="hover-tip glass p-4 rounded-xl">
+                <p class="text-stone-100"><i class="fa-solid fa-location-dot text-gold mr-2"></i><strong>Xantohumol</strong> — Mitocôndria · Complexo I <em>NDUFV1 / NDUFS7</em> como <span class="text-gold">modulador, não substrato direto</span></p>
+                <div class="tipbox">Prenilflavonoide do lúpulo modelado como modulador alostérico do Complexo I da cadeia respiratória — altera limites de fluxo (vmax) em vez de consumir reações.</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ABA 3 -->
+          <div class="tab-panel" id="t3">
+            <h3 class="font-serif text-gold mb-3">A Matemática da Vida — Análise de Fluxo de Equilíbrio (FBA)</h3>
+            <div class="formula text-lg md:text-xl text-center my-6 space-y-4">
+              <p>Max&nbsp;<em>Z</em> = <span class="text-gold">c<sup>T</sup></span> · <span class="text-emerald-300">v</span></p>
+              <p class="text-base">sujeito a&nbsp;&nbsp;<span class="text-emerald-300">S</span> · <span class="text-emerald-300">v</span> = <span class="text-gold">0</span>&nbsp;&nbsp;e&nbsp;&nbsp;v<sub>min</sub> ≤ <span class="text-emerald-300">v</span> ≤ v<sub>max</sub></p>
+            </div>
+            <div class="grid sm:grid-cols-2 gap-4 text-sm">
+              <div class="glass p-4 rounded-xl"><i class="fa-solid fa-equals text-gold mr-2"></i><strong>Estado estacionário:</strong> dX/dt = 0 — a produção iguala o consumo de cada metabólito interno.</div>
+              <div class="glass p-4 rounded-xl"><i class="fa-solid fa-sliders text-gold mr-2"></i><strong>v<sub>min</sub>/v<sub>max</sub>:</strong> capacidades termodinâmicas e enzimáticas que delimitam cada fluxo.</div>
+              <div class="glass p-4 rounded-xl"><i class="fa-solid fa-crosshairs text-gold mr-2"></i><strong>c:</strong> vetor objetivo (ex.: maximizar biomassa).</div>
+              <div class="glass p-4 rounded-xl"><i class="fa-solid fa-table-cells text-gold mr-2"></i><strong>S:</strong> matriz estoquiométrica gene–metabólito–reação.</div>
+            </div>
+          </div>
+
+          <!-- ABA 4 -->
+          <div class="tab-panel" id="t4">
+            <h3 class="font-serif text-gold mb-3">Camada Híbrida de Dose-Resposta acoplada ao FBA</h3>
+            <div class="space-y-5 text-sm">
+              <div class="glass p-5 rounded-xl border-l-4 border-gold">
+                <p class="font-semibold text-gold mb-2">EEB-HT — Função Hormética (bifásica)</p>
+                <p class="formula text-base md:text-lg text-center">v = base · (1 + α·e<sup>−½((C−C<sub>opt</sub>)/σ)²</sup> − β·C²)</p>
+                <p class="text-xs text-stone-400 mt-2">Gauchoide estimulatório em C<sub>opt</sub> + penalidade quadrática inibitória em doses altas.</p>
+              </div>
+              <div class="glass p-5 rounded-xl border-l-4 border-emerald-400">
+                <p class="font-semibold text-emerald-300 mb-2">EEB-BM — Michaelis–Menten (saturação)</p>
+                <p class="formula text-base md:text-lg text-center">v = V<sub>max</sub> · C / (K<sub>m</sub> + C)</p>
+                <p class="text-xs text-stone-400 mt-2">Resposta nutricional monotônica com platô assintótico — condicionante/fertilizante.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Coluna do vídeo AraGEM -->
+      <div class="reveal">
+        <div id="aragemBox" class="glass-strong rounded-2xl p-3 sticky top-0">
+          <video id="aragemVideo" class="w-full rounded-xl" muted loop playsinline preload="metadata"
+                 src="https://raw.githubusercontent.com/hikarishinlovestain-ui/qualidoc/main/Curadoria%20do%20AraGEM.mp4"></video>
+          <p class="text-xs text-stone-400 mt-2 px-1"><i class="fa-solid fa-hand-pointer text-gold mr-1"></i>Passe o mouse para reproduzir o vídeo da curadoria em loop silencioso.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     SEÇÃO 8 — ANÁLISE IN VITRO (GERMINAÇÃO E FITOTOXICIDADE)
+============================================================ -->
+<section class="slide" data-name="Análise In Vitro">
+  <div class="slide-inner">
+    <h2 class="section-title font-serif mb-1 reveal">Análise <em>In Vitro</em> — Germinação &amp; Fitotoxicidade</h2>
+    <div class="goldline mb-6 reveal"></div>
+
+    <div class="grid lg:grid-cols-2 gap-8 items-start">
+      <!-- Esquerda: esquema animado -->
+      <div class="reveal">
+        <div class="glass-strong p-6 rounded-2xl flex flex-col md:flex-row items-center gap-6">
+          <div class="petri shrink-0" id="petri">
+            <div class="absolute inset-3 rounded-full border border-white/10"></div>
+          </div>
+          <ul class="space-y-3 text-sm" id="petriSteps">
+            <li class="pstep flex gap-3"><span class="w-6 h-6 rounded-full bg-gold/20 border border-gold/50 text-gold text-xs flex items-center justify-center shrink-0">1</span>Placa de Petri recebe <strong>papel filtro</strong></li>
+            <li class="pstep flex gap-3"><span class="w-6 h-6 rounded-full bg-gold/20 border border-gold/50 text-gold text-xs flex items-center justify-center shrink-0">2</span><strong>20 sementinhas</strong> de <em>Lactuca sativa</em> distribuídas</li>
+            <li class="pstep flex gap-3"><span class="w-6 h-6 rounded-full bg-gold/20 border border-gold/50 text-gold text-xs flex items-center justify-center shrink-0">3</span><strong>5&nbsp;mL de líquido</strong> (tratamento ou controle)</li>
+            <li class="pstep flex gap-3"><span class="w-6 h-6 rounded-full bg-gold/20 border border-gold/50 text-gold text-xs flex items-center justify-center shrink-0">4</span>Placa <strong>lacrada</strong></li>
+            <li class="pstep flex gap-3"><span class="w-6 h-6 rounded-full bg-gold/20 border border-gold/50 text-gold text-xs flex items-center justify-center shrink-0">5</span><strong>Estufa BOD</strong> — junto com outras 7 placas iguais</li>
+          </ul>
+        </div>
+
+        <!-- Estatística destacada -->
+        <div class="grid sm:grid-cols-2 gap-4 mt-6">
+          <div class="glass-strong p-4 rounded-xl border-t-4 border-gold reveal">
+            <p class="font-serif text-gold text-sm mb-2"><i class="fa-solid fa-calculator mr-1"></i>Trub Quente (EEB-HT)</p>
+            <p class="text-xs leading-relaxed text-stone-200">20 sementes · <strong>6 tratamentos</strong> + 2 controles (Água, CuSO₄) · 4 repetições<br><span class="text-gold font-bold text-sm">= 640 sementes</span></p>
+          </div>
+          <div class="glass-strong p-4 rounded-xl border-t-4 border-emerald-400 reveal">
+            <p class="font-serif text-emerald-300 text-sm mb-2"><i class="fa-solid fa-calculator mr-1"></i>Bagaço de Malte (EEB-BM)</p>
+            <p class="text-xs leading-relaxed text-stone-200">20 sementes · <strong>5 tratamentos</strong> + 2 controles (Água, CuSO₄) · 4 repetições<br><span class="text-emerald-300 font-bold text-sm">= 560 sementes</span></p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Direita: vídeo + imagens dia 1/dia 5 -->
+      <div class="reveal">
+        <div class="glass p-3 rounded-2xl overflow-visible cursor-pointer select-none" id="plaqueBox">
+          <video id="plaqueVideo" class="w-full rounded-xl max-h-64 object-cover pointer-events-none" muted loop playsinline preload="metadata"
+                 src="https://raw.githubusercontent.com/hikarishinlovestain-ui/qualidoc/main/plaqueamento_de_sementes.mp4"></video>
+          <p class="text-xs text-stone-400 mt-2 px-1"><i class="fa-solid fa-circle-play text-gold mr-1"></i>Clique na caixa do vídeo para reproduzir / pausar.</p>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4 mt-5" style="overflow:visible;">
+          <figure class="glass p-2 rounded-xl overflow-visible">
+            <img src="https://raw.githubusercontent.com/hikarishinlovestain-ui/qualidoc/main/Dia1EEB-HT.jpg"
+                 alt="Placas com base milimetrada - Dia 1" class="zoomable w-full h-36 object-cover rounded-lg"
+                 data-cap="Germinação — Dia 1 (EEB-HT)">
+            <!-- SUBSTITUIR POR Dia1EEB-BM.jpg QUANDO DISPONÍVEL -->
+            <!-- SUBSTITUIR ARQUIVO: Dia1EEB-BM.jpg (para a versão EEB-BM) -->
+            <figcaption class="text-xs text-stone-400 mt-1 text-center">Dia 1 — EEB-HT (base milimetrada)</figcaption>
+          </figure>
+          <figure class="glass p-2 rounded-xl overflow-visible">
+            <img src="https://raw.githubusercontent.com/hikarishinlovestain-ui/qualidoc/main/Dia5EEB-HT.jpg"
+                 alt="Placas com base milimetrada - Dia 5" class="zoomable w-full h-36 object-cover rounded-lg"
+                 data-cap="Germinação — Dia 5 (EEB-HT)">
+            <!-- SUBSTITUIR POR Dia5EEB-BM.jpg QUANDO DISPONÍVEL -->
+            <!-- SUBSTITUIR ARQUIVO: Dia5EEB-BM.jpg (para a versão EEB-BM) -->
+            <figcaption class="text-xs text-stone-400 mt-1 text-center">Dia 5 — EEB-HT (base milimetrada)</figcaption>
+          </figure>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     SEÇÃO 9 — MEDIÇÃO E CÁLCULOS
+============================================================ -->
+<section class="slide" data-name="Medição e Cálculos">
+  <div class="slide-inner">
+    <h2 class="section-title font-serif mb-1 reveal">Medição e Cálculos</h2>
+    <div class="goldline mb-6 reveal"></div>
+
+    <div class="grid lg:grid-cols-2 gap-8 items-center">
+      <figure class="reveal glass p-3 rounded-2xl">
+        <img src="https://raw.githubusercontent.com/hikarishinlovestain-ui/qualidoc/main/IMageJExemplodesementesmedidas.jpg"
+             alt="Exemplo de medição de sementes no ImageJ" class="zoomable w-full rounded-xl"
+             data-cap="Exemplo de medição no ImageJ — contornos de sementes/radicelas sobrepostos">
+        <figcaption class="text-xs text-stone-400 mt-2 px-1"><i class="fa-solid fa-ruler-combined text-gold mr-1"></i>Instrução visual: sementes e radicelas delineadas automaticamente pelo limiar do ImageJ; o comprimento é medido em pixels e calibrado pela base milimetrada.</figcaption>
+      </figure>
+
+      <div class="reveal space-y-6">
+        <div class="glass-strong p-8 rounded-2xl text-center">
+          <p class="text-xs uppercase tracking-widest text-gold mb-3 font-semibold">Porcentagem de Germinação</p>
+          <p class="formula text-3xl">G% = <span class="frac"><span class="num">N<sub>g</sub></span><span class="den">N<sub>t</sub></span></span> × 100</p>
+          <p class="text-xs text-stone-400 mt-4">N<sub>g</sub> = sementes germinadas · N<sub>t</sub> = semente total na placa</p>
+        </div>
+        <div class="glass-strong p-8 rounded-2xl text-center">
+          <p class="text-xs uppercase tracking-widest text-gold mb-3 font-semibold">Índice de Velocidade de Germinação</p>
+          <p class="formula text-3xl">IVG = Σ <span class="frac"><span class="num">G<sub>i</sub></span><span class="den">N<sub>i</sub></span></span></p>
+          <p class="text-xs text-stone-400 mt-4">G<sub>i</sub> = germinadas na contagem <em>i</em> · N<sub>i</sub> = dias decorridos na contagem <em>i</em> — pondera a <strong>rapidez</strong> da germinação.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     SEÇÃO 10 — ATIVIDADE ANTIFÚNGICA (COMUNIDADE DE SOLO)
+============================================================ -->
+<section class="slide" data-name="Antifúngico Solo">
+  <div class="slide-inner">
+    <h2 class="section-title font-serif mb-1 reveal">Atividade Antifúngica — Comunidade de Solo</h2>
+    <div class="goldline mb-4 reveal"></div>
+
+    <div class="grid md:grid-cols-[1fr_380px] gap-6 items-start">
+      <div class="grid sm:grid-cols-2 gap-4 reveal" id="soLoSteps">
+      <div class="step-card step-soil glass-strong p-5 rounded-2xl lift h-full">
+        <div class="w-11 h-11 rounded-full bg-gold/20 border border-gold/50 flex items-center justify-center text-gold mb-3"><i class="fa-solid fa-vial"></i></div>
+        <h3 class="font-serif text-gold text-sm mb-2">1. Suspensão de Solo</h3>
+        <p class="text-xs leading-relaxed text-stone-200">1&nbsp;g de solo em 9&nbsp;mL de água estéril (10⁻¹), diluições seriadas, <em>spread plate</em> em ágar PDA (EMBRAPA, 2011).</p>
+      </div>
+      <div class="step-card step-soil glass-strong p-5 rounded-2xl lift h-full">
+        <div class="w-11 h-11 rounded-full bg-gold/20 border border-gold/50 flex items-center justify-center text-gold mb-3"><i class="fa-solid fa-flask"></i></div>
+        <h3 class="font-serif text-gold text-sm mb-2">2. Preparação dos Extratos</h3>
+        <p class="text-xs leading-relaxed text-stone-200">Soluções em DMSO nas concentrações <strong>50, 200 e 1000&nbsp;mg/L</strong>.</p>
+      </div>
+      <div class="step-card step-soil glass-strong p-5 rounded-2xl lift h-full">
+        <div class="w-11 h-11 rounded-full bg-gold/20 border border-gold/50 flex items-center justify-center text-gold mb-3"><i class="fa-solid fa-border-all"></i></div>
+        <h3 class="font-serif text-gold text-sm mb-2">3. Aplicação</h3>
+        <p class="text-xs leading-relaxed text-stone-200"><strong>4 poços de 6&nbsp;mm</strong>, 100&nbsp;µL por poço. Controle negativo: DMSO puro.</p>
+      </div>
+      <div class="step-card step-soil glass-strong p-5 rounded-2xl lift h-full">
+        <div class="w-11 h-11 rounded-full bg-gold/20 border border-gold/50 flex items-center justify-center text-gold mb-3"><i class="fa-solid fa-temperature-half"></i></div>
+        <h3 class="font-serif text-gold text-sm mb-2">4. Incubação</h3>
+        <p class="text-xs leading-relaxed text-stone-200"><strong>28&nbsp;°C por 56&nbsp;h</strong>. Avaliação qualitativa por halos de inibição.</p>
+        <img src="https://raw.githubusercontent.com/hikarishinlovestain-ui/qualidoc/main/antifungico%20teste.jpg"
+             alt="Placas antifúngicas com solo" class="zoomable mt-3 w-full h-24 object-cover rounded-lg"
+             data-cap="Placas de difusão em ágar — fungos de solo totais">
+      </div>
+      </div><!-- /#soLoSteps -->
+
+      <!-- Vídeo: plaqueamento com solo total — clicar na caixa para play/pause -->
+      <div class="reveal">
+        <div id="soilBox" class="glass-strong rounded-2xl p-3 shadow-2xl cursor-pointer select-none" style="backdrop-filter:blur(14px);">
+          <video id="soilVideo" class="w-full rounded-xl pointer-events-none" muted loop playsinline preload="metadata"
+                 src="https://raw.githubusercontent.com/hikarishinlovestain-ui/qualidoc/main/plaqueamento_com_solo_total.mp4"></video>
+          <p class="text-xs text-stone-300 mt-2 text-center"><i class="fa-solid fa-circle-play text-gold mr-1"></i>Plaqueamento com solo total — clique na caixa para reproduzir / pausar</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     SEÇÃO 11 — ATIVIDADE ANTIFÚNGICA (CANDIDA ALBICANS)
+============================================================ -->
+<section class="slide" data-name="Antifúngico Candida">
+  <div class="slide-inner">
+    <h2 class="section-title font-serif mb-1 reveal">Atividade Antifúngica — <em>Candida albicans</em></h2>
+    <div class="goldline mb-8 reveal"></div>
+
+    <div class="grid lg:grid-cols-2 gap-8 items-center">
+      <div class="space-y-5">
+        <div class="hover-tip reveal glass-strong p-6 rounded-2xl flex gap-4 lift">
+          <div class="w-12 h-12 shrink-0 rounded-full bg-gold/20 border border-gold/50 flex items-center justify-center text-gold"><i class="fa-solid fa-pipette"></i></div>
+          <div>
+            <h3 class="font-serif text-gold mb-1">1. Preparo</h3>
+            <p class="text-sm text-stone-200">Suspensão ajustada para <strong>0,5 McFarland</strong>, semeada em ágar Sabouraud Dextrose.</p>
+          </div>
+          <div class="tipbox">Padrão CLSI/M27-equivalente: turbidez comparável a ~1,5×10⁶ UFC/mL garante densidade de inoculo reprodutível.</div>
+        </div>
+        <div class="hover-tip reveal glass-strong p-6 rounded-2xl flex gap-4 lift">
+          <div class="w-12 h-12 shrink-0 rounded-full bg-gold/20 border border-gold/50 flex items-center justify-center text-gold"><i class="fa-solid fa-border-all"></i></div>
+          <div>
+            <h3 class="font-serif text-gold mb-1">2. Aplicação</h3>
+            <p class="text-sm text-stone-200">Poços de <strong>6&nbsp;mm</strong>, 100&nbsp;µL dos extratos em DMSO (<strong>50, 200, 1000&nbsp;mg/L</strong>). Controle negativo: DMSO puro. Sem controle positivo.</p>
+          </div>
+          <div class="tipbox">Difusão em ágar tipo well-diffusion; ausência de controle positivo limita comparações absolutas de halo.</div>
+        </div>
+        <div class="hover-tip reveal glass-strong p-6 rounded-2xl flex gap-4 lift">
+          <div class="w-12 h-12 shrink-0 rounded-full bg-gold/20 border border-gold/50 flex items-center justify-center text-gold"><i class="fa-solid fa-stopwatch-20"></i></div>
+          <div>
+            <h3 class="font-serif text-gold mb-1">3. Incubação</h3>
+            <p class="text-sm text-stone-200"><strong>28&nbsp;°C por 48&nbsp;h</strong>. Leitura do diâmetro do halo de inibição.</p>
+          </div>
+          <div class="tipbox">Leitura com paquímetro/lupa retroiluminada; registro fotográfico para análise qualitativa.</div>
+        </div>
+      </div>
+
+      <figure class="reveal glass p-3 rounded-2xl">
+        <img src="https://raw.githubusercontent.com/hikarishinlovestain-ui/qualidoc/main/Candida%20albicans%20teste.jpg"
+             alt="Placas Candida albicans teste" class="zoomable w-full rounded-xl"
+             data-cap="Placas de difusão em ágar — Candida albicans">
+        <figcaption class="text-xs text-stone-400 mt-2 px-1">Placas com <em>Candida albicans</em> após 48&nbsp;h — observação dos poços e possíveis halos.</figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     SEÇÃO 12 — FITOQUÍMICA (CLAE-DAD-EM/EM)
+============================================================ -->
+<section class="slide" data-name="Fitoquímica">
+  <div class="slide-inner">
+    <h2 class="section-title font-serif mb-1 reveal">Fitoquímica — CLAE-DAD-EM/EM</h2>
+    <div class="goldline mb-3 reveal"></div>
+    <p class="reveal text-sm text-stone-400 mb-4">Passe o mouse sobre o nome de um composto na tabela para ver a proposta de fragmentação — clique (na imagem ou no card) para ampliar no Lightbox.</p>
+
+    <!-- Cromatogramas CLAE-DAD-EM/EM primeiro -->
+    <div class="grid md:grid-cols-2 gap-4 mb-6 reveal">
+      <figure class="glass p-3 rounded-xl">
+        <p class="text-xs text-gold font-semibold mb-2">Cromatograma — EEB-HT (Trub Quente)</p>
+        <img src="https://raw.githubusercontent.com/hikarishinlovestain-ui/qualidoc/main/CLAE%20EEBTQ.jpg"
+             alt="Cromatograma CLAE EEB-HT" class="zoomable w-full h-40 object-contain bg-white/90 rounded-lg p-1"
+             data-cap="CLAE-DAD-EM/EM — Cromatograma EEB-HT">
+      </figure>
+      <figure class="glass p-3 rounded-xl">
+        <p class="text-xs text-emerald-300 font-semibold mb-2">Cromatograma — EEB-BM (Bagaço de Malte)</p>
+        <img src="https://raw.githubusercontent.com/hikarishinlovestain-ui/qualidoc/main/CLAE%20EEBBM.jpg"
+             alt="Cromatograma CLAE EEB-BM" class="zoomable w-full h-40 object-contain bg-white/90 rounded-lg p-1"
+             data-cap="CLAE-DAD-EM/EM — Cromatograma EEB-BM">
+      </figure>
+    </div>
+
+    <!-- TABELA FITOQUÍMICA (formato profissional — substitui o antigo grid de cards) -->
+    <div class="glass-strong rounded-2xl p-4 md:p-6 reveal" style="overflow:visible;">
+      <p class="text-xs text-stone-400 mb-3"><i class="fa-solid fa-table-list text-gold mr-2"></i>Passe o mouse sobre o <strong class="text-stone-200">nome do composto</strong> na tabela para visualizar a proposta de fragmentação — clique na imagem exibida no tooltip para ampliá-la no Lightbox.</p>
+      <div style="overflow:visible;">
+      <table class="w-full text-sm text-left text-gray-700">
+        <thead class="text-xs text-stone-300 uppercase bg-moss/60 border-b-2 border-gold/40">
+          <tr>
+            <th scope="col" class="px-4 py-3 rounded-tl-lg">Composto</th>
+            <th scope="col" class="px-4 py-3">Extrato</th>
+            <th scope="col" class="px-4 py-3">RT (min)</th>
+            <th scope="col" class="px-4 py-3">m/z [M+H]⁺</th>
+            <th scope="col" class="px-4 py-3 rounded-tr-lg">Fragmento principal</th>
+          </tr>
+        </thead>
+        <tbody class="text-stone-200">
+      <tr class="comp-row border-b border-white/10 hover:bg-white/5 transition-colors" data-img="https://raw.githubusercontent.com/hikarishinlovestain-ui/qualidoc/main/xanthohumol.png" data-cap="Proposta de fragmentação — Xantohumol">
+        <td class="px-4 py-3">
+          <span class="comp-name font-serif text-gold cursor-help border-b border-dotted border-gold/50">Xantohumol</span>
+          <span class="block text-[10px] text-stone-400 mt-0.5">Prenilflavonoide · trub quente</span>
+        </td>
+        <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-amber-400/15 text-amber-300 border border-amber-400/30">EEB-HT</span></td>
+        <td class="px-4 py-3 font-mono text-stone-200">18,4</td>
+        <td class="px-4 py-3 font-mono text-stone-200">355,2</td>
+        <td class="px-4 py-3 font-mono text-stone-300">209,1 – 176,0</td>
+      </tr>
+      <tr class="comp-row border-b border-white/10 hover:bg-white/5 transition-colors" data-img="https://raw.githubusercontent.com/hikarishinlovestain-ui/qualidoc/main/hordenine.png" data-cap="Proposta de fragmentação — Hordenina">
+        <td class="px-4 py-3">
+          <span class="comp-name font-serif text-gold cursor-help border-b border-dotted border-gold/50">Hordenina</span>
+          <span class="block text-[10px] text-stone-400 mt-0.5">Alcaloide · malte</span>
+        </td>
+        <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-400/15 text-emerald-300 border border-emerald-400/30">EEB-BM</span></td>
+        <td class="px-4 py-3 font-mono text-stone-200">6,2</td>
+        <td class="px-4 py-3 font-mono text-stone-200">134,1</td>
+        <td class="px-4 py-3 font-mono text-stone-300">91,0 – 103,1</td>
+      </tr>
+      <tr class="comp-row border-b border-white/10 hover:bg-white/5 transition-colors" data-img="https://raw.githubusercontent.com/hikarishinlovestain-ui/qualidoc/main/linoleic_acid.png" data-cap="Proposta de fragmentação — Ácido Linoleico">
+        <td class="px-4 py-3">
+          <span class="comp-name font-serif text-gold cursor-help border-b border-dotted border-gold/50">Ácido Linoleico</span>
+          <span class="block text-[10px] text-stone-400 mt-0.5">Ômega-6 · bagaço</span>
+        </td>
+        <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-400/15 text-emerald-300 border border-emerald-400/30">EEB-BM</span></td>
+        <td class="px-4 py-3 font-mono text-stone-200">21,7</td>
+        <td class="px-4 py-3 font-mono text-stone-200">279,2</td>
+        <td class="px-4 py-3 font-mono text-stone-300">261,2 – 223,2</td>
+      </tr>
+      <tr class="comp-row border-b border-white/10 hover:bg-white/5 transition-colors" data-img="https://raw.githubusercontent.com/hikarishinlovestain-ui/qualidoc/main/erucamide.png" data-cap="Proposta de fragmentação — Erucamida">
+        <td class="px-4 py-3">
+          <span class="comp-name font-serif text-gold cursor-help border-b border-dotted border-gold/50">Erucamida</span>
+          <span class="block text-[10px] text-stone-400 mt-0.5">Amida graxa</span>
+        </td>
+        <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-400/15 text-emerald-300 border border-emerald-400/30">EEB-BM</span></td>
+        <td class="px-4 py-3 font-mono text-stone-200">24,9</td>
+        <td class="px-4 py-3 font-mono text-stone-200">324,3</td>
+        <td class="px-4 py-3 font-mono text-stone-300">171,2 – 306,3</td>
+      </tr>
+      <tr class="comp-row border-b border-white/10 hover:bg-white/5 transition-colors" data-img="https://raw.githubusercontent.com/hikarishinlovestain-ui/qualidoc/main/phthalic_anhydride.png" data-cap="Proposta de fragmentação — Anidrido Ftálico">
+        <td class="px-4 py-3">
+          <span class="comp-name font-serif text-gold cursor-help border-b border-dotted border-gold/50">Anidrido Ftálico</span>
+          <span class="block text-[10px] text-stone-400 mt-0.5">Derivado aromático</span>
+        </td>
+        <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-amber-400/15 text-amber-300 border border-amber-400/30">EEB-HT</span></td>
+        <td class="px-4 py-3 font-mono text-stone-200">12,8</td>
+        <td class="px-4 py-3 font-mono text-stone-200">149,0</td>
+        <td class="px-4 py-3 font-mono text-stone-300">121,0 – 93,0</td>
+      </tr>
+      <tr class="comp-row border-b border-white/10 hover:bg-white/5 transition-colors" data-img="https://raw.githubusercontent.com/hikarishinlovestain-ui/qualidoc/main/lambertianic_acid.png" data-cap="Proposta de fragmentação — Diterpeno (Ácido Lambertânico)">
+        <td class="px-4 py-3">
+          <span class="comp-name font-serif text-gold cursor-help border-b border-dotted border-gold/50">Diterpeno (Ácido Lambertânico)</span>
+          <span class="block text-[10px] text-stone-400 mt-0.5">Resina de lúpulo</span>
+        </td>
+        <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-amber-400/15 text-amber-300 border border-amber-400/30">EEB-HT</span></td>
+        <td class="px-4 py-3 font-mono text-stone-200">23,1</td>
+        <td class="px-4 py-3 font-mono text-stone-200">295,2</td>
+        <td class="px-4 py-3 font-mono text-stone-300">277,2 – 249,2</td>
+      </tr>
+        </tbody>
+      </table>
+      </div>
+    </div>
+
+    <!-- Tooltip elegante de fragmentação (posicionado via JS no hover do nome do composto) -->
+    <div id="fragTooltip" class="fixed z-[90] hidden">
+      <div class="glass-strong rounded-xl border border-gold/50 shadow-2xl p-2 backdrop-blur-md">
+        <p class="text-[10px] uppercase tracking-wider text-gold mb-1 px-1" id="fragTipName">—</p>
+        <img id="fragTipImg" src="" alt="Proposta de fragmentação"
+             class="zoomable w-64 max-w-[70vw] rounded-lg bg-white/95 p-1" data-cap="">
+        <p class="text-[10px] text-stone-400 mt-1 px-1 italic">Clique na imagem para abrir no Lightbox</p>
+      </div>
+    </div>
+
+  </div>
+</section>
+<!-- ============================================================
+     SEÇÃO 13 — FBA E AraGEM (GRÁFICO INTERATIVO COM SLIDERS)
+============================================================ -->
+<section class="slide" data-name="FBA Interativo">
+  <div class="slide-inner">
+    <h2 class="section-title font-serif mb-1 reveal">FBA &amp; AraGEM</h2>
+    <div class="goldline mb-6 reveal"></div>
+
+    <div class="grid lg:grid-cols-[1.4fr_1fr] gap-6 items-stretch">
+      <!-- Gráfico -->
+      <div class="reveal glass-strong p-4 rounded-2xl flex flex-col">
+        <!-- CORREÇÃO CRÍTICA: canvas envolto em div com altura fixa (relative h-96 w-full)
+             para o Chart.js (responsive + maintainAspectRatio:false) renderizar corretamente -->
+        <div class="relative h-96 w-full">
+          <canvas id="fbaChart"></canvas>
+        </div>
+        <p class="text-[11px] text-stone-400 mt-3 px-2"><i class="fa-solid fa-circle-info text-gold mr-1"></i>Resposta relativa à biomassa do modelo (Controle = 1,0). Curvas preditivas geradas pela camada híbrida dose-resposta acoplada ao FBA.</p>
+      </div>
+
+      <!-- Painel de controle -->
+      <div class="reveal space-y-5">
+        <div class="glass-strong p-6 rounded-2xl">
+          <h3 class="font-serif text-gold mb-4"><i class="fa-solid fa-sliders mr-2"></i>Painel de Controle da Banca</h3>
+
+          <label class="block text-sm mb-1 text-stone-200">Concentração <strong class="text-gold">EEB-HT</strong>: <span id="htVal" class="font-bold text-gold">45 mg/L</span></label>
+          <input id="sliderHT" type="range" min="0" max="1000" step="1" value="45"
+                 class="w-full accent-[#D4AF37] cursor-pointer">
+          <p class="text-[11px] text-stone-400 mb-5">0 a 1000 mg/L · curva hormética (pico ≈ 45 mg/L)</p>
+
+          <label class="block text-sm mb-1 text-stone-200">Concentração <strong class="text-emerald-300">EEB-BM</strong>: <span id="bmVal" class="font-bold text-emerald-300">250 mg/L</span></label>
+          <input id="sliderBM" type="range" min="0" max="1000" step="1" value="250"
+                 class="w-full accent-[#4ade80] cursor-pointer">
+          <p class="text-[11px] text-stone-400">0 a 1000 mg/L · saturação tipo Michaelis–Menten</p>
+        </div>
+
+        <div class="glass-strong p-6 rounded-2xl text-center">
+          <p class="text-xs uppercase tracking-widest text-stone-400 mb-3">Leitura instantânea do modelo</p>
+          <div class="flex justify-around">
+            <div>
+              <p class="text-3xl font-serif font-bold text-gold" id="readHT">1.19</p>
+              <p class="text-[11px] text-stone-400">Resposta EEB-HT</p>
+            </div>
+            <div class="w-px bg-white/15"></div>
+            <div>
+              <p class="text-3xl font-serif font-bold text-emerald-300" id="readBM">1.07</p>
+              <p class="text-[11px] text-stone-400">Resposta EEB-BM</p>
+            </div>
+          </div>
+          <p class="text-[11px] mt-4 leading-relaxed text-stone-400" id="verdict">Arraste os sliders: o gráfico recalcula v(C) em tempo real, demonstrando como as faixas de dose foram priorizadas in silico antes dos bioensaios.</p>
+        </div>
+
+        <button id="resetSliders" class="w-full glass hover:bg-white/15 transition py-3 rounded-xl text-sm font-semibold text-stone-200">
+          <i class="fa-solid fa-rotate-left text-gold mr-2"></i>Restaurar condições padrão
+        </button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     SEÇÃO 14 — RESULTADOS: GERMINAÇÃO E FITOTOXICIDADE
+============================================================ -->
+<section class="slide" data-name="Resultados Germinação">
+  <div class="slide-inner">
+    <h2 class="section-title font-serif mb-1 reveal">Resultados — Germinação &amp; Fitotoxicidade</h2>
+    <div class="goldline mb-5 reveal"></div>
+
+    <!-- Subseção EEB-HT -->
+    <div class="mb-8">
+      <h3 class="reveal font-serif text-gold text-lg mb-3"><i class="fa-solid fa-mug-hot mr-2"></i>Subseção A — EEB-HT (Trub Quente)</h3>
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <figure class="reveal glass p-2 rounded-xl lift">
+          <img src="https://raw.githubusercontent.com/hikarishinlovestain-ui/qualidoc/main/EEB-HT_1_ivg_barras.png" alt="EEB-HT IVG barras" class="zoomable w-full h-32 object-contain bg-white/90 rounded-lg p-1" data-cap="EEB-HT — IVG (barras)">
+          <figcaption class="text-[10px] text-stone-400 mt-1 text-center">IVG — barras</figcaption>
+        </figure>
+        <figure class="reveal glass p-2 rounded-xl lift">
+          <img src="https://raw.githubusercontent.com/hikarishinlovestain-ui/qualidoc/main/EEB-HT_boxplot_radicular.png" alt="EEB-HT boxplot radicular" class="zoomable w-full h-32 object-contain bg-white/90 rounded-lg p-1" data-cap="EEB-HT — Boxplot alongamento radicular">
+          <figcaption class="text-[10px] text-stone-400 mt-1 text-center">Boxplot radicular</figcaption>
+        </figure>
+        <figure class="reveal glass p-2 rounded-xl lift">
+          <img src="https://raw.githubusercontent.com/hikarishinlovestain-ui/qualidoc/main/EEB-HT_dose_resposta_ivg.png" alt="EEB-HT dose resposta IVG" class="zoomable w-full h-32 object-contain bg-white/90 rounded-lg p-1" data-cap="EEB-HT — Dose-resposta IVG">
+          <figcaption class="text-[10px] text-stone-400 mt-1 text-center">Dose-resposta IVG</figcaption>
+        </figure>
+        <figure class="reveal glass p-2 rounded-xl lift">
+          <img src="https://raw.githubusercontent.com/hikarishinlovestain-ui/qualidoc/main/EEB-HT_dose_resposta_radicular.png" alt="EEB-HT dose resposta radicular" class="zoomable w-full h-32 object-contain bg-white/90 rounded-lg p-1" data-cap="EEB-HT — Dose-resposta radicular">
+          <figcaption class="text-[10px] text-stone-400 mt-1 text-center">Dose-resposta radicular</figcaption>
+        </figure>
+      </div>
+      <div class="grid grid-cols-2 gap-4 mt-4 max-w-2xl">
+        <figure class="reveal glass p-2 rounded-xl">
+          <img src="https://raw.githubusercontent.com/hikarishinlovestain-ui/qualidoc/main/Dia1EEB-HT.jpg" alt="Germinação EEB-HT Dia 1" class="zoomable w-full h-28 object-cover rounded-lg" data-cap="EEB-HT — Placas Dia 1">
+          <figcaption class="text-[10px] text-stone-400 mt-1 text-center">Germinação — Dia 1</figcaption>
+        </figure>
+        <figure class="reveal glass p-2 rounded-xl">
+          <img src="https://raw.githubusercontent.com/hikarishinlovestain-ui/qualidoc/main/Dia5EEB-HT.jpg" alt="Germinação EEB-HT Dia 5" class="zoomable w-full h-28 object-cover rounded-lg" data-cap="EEB-HT — Placas Dia 5">
+          <figcaption class="text-[10px] text-stone-400 mt-1 text-center">Germinação — Dia 5</figcaption>
+        </figure>
+      </div>
+    </div>
+
+    <!-- Subseção EEB-BM -->
+    <div>
+      <h3 class="reveal font-serif text-emerald-300 text-lg mb-3"><i class="fa-solid fa-wheat-awn mr-2"></i>Subseção B — EEB-BM (Bagaço de Malte)</h3>
+      <!-- SUBSTITUIR POR Dia1EEB-BM.jpg QUANDO DISPONÍVEL -->
+      <!-- SUBSTITUIR POR Dia5EEB-BM.jpg QUANDO DISPONÍVEL -->
+      <!-- SUBSTITUIR ARQUIVO: Dia1EEB-BM.jpg / Dia5EEB-BM.jpg -->
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <figure class="reveal glass p-2 rounded-xl lift">
+          <img src="https://raw.githubusercontent.com/hikarishinlovestain-ui/qualidoc/main/EEB-BM_ivg_barras.png" alt="EEB-BM IVG barras" class="zoomable w-full h-32 object-contain bg-white/90 rounded-lg p-1" data-cap="EEB-BM — IVG (barras)">
+          <figcaption class="text-[10px] text-stone-400 mt-1 text-center">IVG — barras</figcaption>
+        </figure>
+        <figure class="reveal glass p-2 rounded-xl lift">
+          <img src="https://raw.githubusercontent.com/hikarishinlovestain-ui/qualidoc/main/EEB-BM_boxplot_radicular.png" alt="EEB-BM boxplot radicular" class="zoomable w-full h-32 object-contain bg-white/90 rounded-lg p-1" data-cap="EEB-BM — Boxplot alongamento radicular">
+          <figcaption class="text-[10px] text-stone-400 mt-1 text-center">Boxplot radicular</figcaption>
+        </figure>
+        <figure class="reveal glass p-2 rounded-xl lift">
+          <img src="https://raw.githubusercontent.com/hikarishinlovestain-ui/qualidoc/main/EEB-BM_dose_resposta_ivg.png" alt="EEB-BM dose resposta IVG" class="zoomable w-full h-32 object-contain bg-white/90 rounded-lg p-1" data-cap="EEB-BM — Dose-resposta IVG">
+          <figcaption class="text-[10px] text-stone-400 mt-1 text-center">Dose-resposta IVG</figcaption>
+        </figure>
+        <figure class="reveal glass p-2 rounded-xl lift">
+          <img src="https://raw.githubusercontent.com/hikarishinlovestain-ui/qualidoc/main/EEB-BM_dose_resposta_radicular.png" alt="EEB-BM dose resposta radicular" class="zoomable w-full h-32 object-contain bg-white/90 rounded-lg p-1" data-cap="EEB-BM — Dose-resposta radicular">
+          <figcaption class="text-[10px] text-stone-400 mt-1 text-center">Dose-resposta radicular</figcaption>
+        </figure>
+      </div>
+      <div class="grid grid-cols-2 gap-4 mt-4 max-w-2xl">
+        <figure class="reveal glass p-2 rounded-xl">
+          <!-- SUBSTITUIR POR Dia1EEB-BM.jpg QUANDO DISPONÍVEL -->
+          <img src="https://raw.githubusercontent.com/hikarishinlovestain-ui/qualidoc/main/Dia1EEB-HT.jpg" alt="Germinação EEB-BM Dia 1 (imagem base provisória)" class="zoomable w-full h-28 object-cover rounded-lg" data-cap="EEB-BM — Placas Dia 1 (base provisória)">
+          <figcaption class="text-[10px] text-stone-400 mt-1 text-center">Germinação — Dia 1 (base provisória)</figcaption>
+        </figure>
+        <figure class="reveal glass p-2 rounded-xl">
+          <!-- SUBSTITUIR POR Dia5EEB-BM.jpg QUANDO DISPONÍVEL -->
+          <img src="https://raw.githubusercontent.com/hikarishinlovestain-ui/qualidoc/main/Dia5EEB-HT.jpg" alt="Germinação EEB-BM Dia 5 (imagem base provisória)" class="zoomable w-full h-28 object-cover rounded-lg" data-cap="EEB-BM — Placas Dia 5 (base provisória)">
+          <figcaption class="text-[10px] text-stone-400 mt-1 text-center">Germinação — Dia 5 (base provisória)</figcaption>
+        </figure>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     SEÇÃO 15 — OBSERVAÇÕES QUALITATIVAS
+============================================================ -->
+<section class="slide" data-name="Observações Qualitativas">
+  <div class="slide-inner">
+    <h2 class="section-title font-serif mb-1 reveal">Observações Qualitativas</h2>
+    <div class="goldline mb-6 reveal"></div>
+
+    <div class="grid lg:grid-cols-2 gap-8 items-start">
+      <div class="space-y-5">
+        <figure class="reveal glass p-3 rounded-2xl">
+          <img src="https://raw.githubusercontent.com/hikarishinlovestain-ui/qualidoc/main/Compara%C3%A7%C3%A3o%20de%20radiculas.jpg"
+               alt="Comparação de radiculas — formação de pelos radiculares" class="zoomable w-full rounded-xl"
+               data-cap="Formação precoce de pelos radiculares: Trub vs Controle">
+          <figcaption class="text-xs text-stone-400 mt-2 px-1"><i class="fa-solid fa-magnifying-glass text-gold mr-1"></i>Formação <strong>precoce de pelos radiculares</strong> nas placas com trub quente em comparação ao controle.</figcaption>
+        </figure>
+
+        <div class="reveal glass-strong p-6 rounded-2xl border-l-4 border-gold">
+          <p class="text-sm leading-relaxed text-stone-100">
+            <i class="fa-solid fa-star-of-life text-gold mr-2"></i><strong class="text-gold font-serif">Principais benefícios dos pelos radiculares:</strong>
+            aumento da interface raiz-substrato, maior aquisição de nutrientes pouco móveis (fosfato),
+            melhor retenção de umidade e ancoragem.
+          </p>
+        </div>
+      </div>
+
+      <div class="reveal">
+        <figure class="glass p-3 rounded-2xl">
+          <img src="https://raw.githubusercontent.com/hikarishinlovestain-ui/qualidoc/main/CuSO4%20esverdeado.jpg"
+               alt="Esverdeamento das raízes no controle positivo CuSO4" class="zoomable w-full rounded-xl"
+               data-cap="Esverdeamento precoce das raízes — controle positivo CuSO₄">
+          <figcaption class="text-xs text-stone-400 mt-2 px-1"><i class="fa-solid fa-triangle-exclamation text-rose-400 mr-1"></i><strong>Esverdeamento precoce das raízes</strong> no controle positivo (CuSO₄) — marcador clássico de estresse/fitotoxicidade que valida o delineamento experimental.</figcaption>
+        </figure>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     SEÇÃO 16 — AVALIAÇÃO DOS EXTRATOS SOBRE FUNGOS (RESULTADOS)
+============================================================ -->
+<section class="slide" data-name="Fungos Resultados">
+  <div class="slide-inner">
+    <h2 class="section-title font-serif mb-1 reveal">Avaliação dos Extratos sobre Fungos — Resultados</h2>
+    <div class="goldline mb-6 reveal"></div>
+
+    <div class="grid lg:grid-cols-3 gap-6 items-stretch">
+      <figure class="reveal glass p-3 rounded-2xl flex flex-col">
+        <img src="https://raw.githubusercontent.com/hikarishinlovestain-ui/qualidoc/main/antifungico%20teste.jpg"
+             alt="Placas com fungos de solo" class="zoomable w-full flex-1 object-cover rounded-xl min-h-40"
+             data-cap="Difusão em ágar — comunidade fúngica de solo total">
+        <figcaption class="text-xs text-stone-400 mt-2 px-1">Comunidade de solo: crescimento contínuo até os poços — sem halos evidentes.</figcaption>
+      </figure>
+
+      <div class="reveal glass-strong p-6 rounded-2xl flex flex-col justify-center">
+        <h3 class="font-serif text-gold mb-4"><i class="fa-solid fa-lightbulb mr-2"></i>Quadro de Reflexão</h3>
+        <ul class="space-y-4 text-sm text-stone-100">
+          <li class="flex gap-3"><i class="fa-solid fa-question text-gold mt-1"></i><span><strong>Significa segurança ambiental?</strong> Ausência de inibição sugere baixo impacto sobre a microbiota edáfica nas doses testadas.</span></li>
+          <li class="flex gap-3"><i class="fa-solid fa-shield-halved text-gold mt-1"></i><span><strong>Efeito tampão do solo total (redundância funcional):</strong> uma comunidade diversa possui espécies funcionais sobrepostas que amortecem perturbações pontuais.</span></li>
+          <li class="flex gap-3"><i class="fa-solid fa-utensils text-gold mt-1"></i><span><strong>Aporte nutricional estimulando saprófitos:</strong> o próprio extrato pode alimentar fungos decompositores, mascarando efeitos inibitórios.</span></li>
+        </ul>
+      </div>
+
+      <figure class="reveal glass p-3 rounded-2xl flex flex-col">
+        <img src="https://raw.githubusercontent.com/hikarishinlovestain-ui/qualidoc/main/Candida%20albicans%20teste.jpg"
+             alt="Placas Candida albicans sem halos" class="zoomable w-full flex-1 object-cover rounded-xl min-h-40"
+             data-cap="Candida albicans — ausência de halos de inibição">
+        <figcaption class="text-xs text-stone-400 mt-2 px-1"><strong class="text-rose-300">Ausência de halos</strong> em <em>C. albicans</em> — compostos lipofílicos com baixa difusão em ágar.</figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     SEÇÃO 17 — CONCLUSÕES PRELIMINARES
+============================================================ -->
+<section class="slide" data-name="Conclusões Preliminares">
+  <div class="slide-inner">
+    <h2 class="section-title font-serif mb-1 reveal">Conclusões Preliminares</h2>
+    <div class="goldline mb-8 reveal"></div>
+
+    <div class="grid md:grid-cols-2 gap-6">
+      <div class="concl reveal glass-strong p-6 rounded-2xl lift">
+        <div class="w-11 h-11 rounded-full bg-gold/20 border border-gold/50 flex items-center justify-center text-gold mb-3"><i class="fa-solid fa-diagram-project"></i></div>
+        <h3 class="font-serif text-gold mb-2">Modelagem <em>in silico</em></h3>
+        <p class="text-sm leading-relaxed text-stone-200">A modelagem <strong>AraGEM adaptada</strong> atuou como filtro analítico promissor, <strong>antecipando limiares de toxicidade e bioestimulação</strong> e direcionando as faixas de dose dos bioensaios.</p>
+      </div>
+      <div class="concl reveal glass-strong p-6 rounded-2xl lift">
+        <div class="w-11 h-11 rounded-full bg-gold/20 border border-gold/50 flex items-center justify-center text-gold mb-3"><i class="fa-solid fa-mug-hot"></i></div>
+        <h3 class="font-serif text-gold mb-2">EEB-HT — Trub Quente</h3>
+        <p class="text-sm leading-relaxed text-stone-200">Confirmado comportamento <strong>bifásico (hormese)</strong> em ~<strong>12,5&nbsp;mg/L</strong> (aumento de IVG e pelos radiculares), com <strong class="text-rose-300">fitotoxicidade acima de 50&nbsp;mg/L</strong> (atribuída a xantohumol/hordenina).</p>
+      </div>
+      <div class="concl reveal glass-strong p-6 rounded-2xl lift">
+        <div class="w-11 h-11 rounded-full bg-emerald-400/20 border border-emerald-400/50 flex items-center justify-center text-emerald-300 mb-3"><i class="fa-solid fa-wheat-awn"></i></div>
+        <h3 class="font-serif text-emerald-300 mb-2">EEB-BM — Bagaço de Malte</h3>
+        <p class="text-sm leading-relaxed text-stone-200">Padrão de <strong>saturação assintótica</strong>, sem toxicidade aguda até <strong>1000&nbsp;mg/L</strong>, atuando como <strong>vetor nutricional</strong> (ácido linoleico).</p>
+      </div>
+      <div class="concl reveal glass-strong p-6 rounded-2xl lift">
+        <div class="w-11 h-11 rounded-full bg-emerald-400/20 border border-emerald-400/50 flex items-center justify-center text-emerald-300 mb-3"><i class="fa-solid fa-biohazard"></i></div>
+        <h3 class="font-serif text-emerald-300 mb-2">Ensaio Antifúngico</h3>
+        <p class="text-sm leading-relaxed text-stone-200">Ensaios <em>in vitro</em> em ágar <strong>não mostraram halos</strong>, sugerindo limitações de difusão de compostos lipofílicos ou resiliência da microbiota. Recomenda-se <strong>microdiluição em meio líquido</strong>.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     SEÇÃO 18 — CRONOGRAMA
+============================================================ -->
+<section class="slide" data-name="Cronograma">
+  <div class="slide-inner">
+    <h2 class="section-title font-serif mb-1 reveal">Cronograma</h2>
+    <div class="goldline mb-6 reveal"></div>
+
+    <div class="glass-strong rounded-2xl p-4 md:p-6">
+      <div class="cron-row text-xs uppercase tracking-wider text-stone-400 border-b border-white/10 pb-2 font-semibold">
+        <span></span><span>Fase</span><span>Período</span><span>Status</span>
+      </div>
+      <div class="cron-row cron-item reveal text-sm">
+        <span class="w-8 h-8 rounded-full bg-moss/50 border border-emerald-400/40 flex items-center justify-center text-emerald-300 text-xs font-bold">I</span>
+        <span class="text-stone-100">Fundamentação teórica &amp; revisão</span>
+        <span class="text-stone-400 text-xs">Jun 2024 – Mai 2025</span>
+        <span class="badge-done text-xs px-3 py-1 rounded-full text-center"><i class="fa-solid fa-check mr-1"></i>Concluído</span>
+      </div>
+      <div class="cron-row cron-item reveal text-sm">
+        <span class="w-8 h-8 rounded-full bg-moss/50 border border-emerald-400/40 flex items-center justify-center text-emerald-300 text-xs font-bold">II</span>
+        <span class="text-stone-100">Modelagem <em>in silico</em> (AraGEM/FBA)</span>
+        <span class="text-stone-400 text-xs">Mar 2025 – Nov 2025</span>
+        <span class="badge-done text-xs px-3 py-1 rounded-full text-center"><i class="fa-solid fa-check mr-1"></i>Concluído</span>
+      </div>
+      <div class="cron-row cron-item reveal text-sm">
+        <span class="w-8 h-8 rounded-full bg-moss/50 border border-emerald-400/40 flex items-center justify-center text-emerald-300 text-xs font-bold">III</span>
+        <span class="text-stone-100">Ensaios <em>In Vitro</em> (germinação + antifúngico)</span>
+        <span class="text-stone-400 text-xs">Jan 2025 – Abr 2026</span>
+        <span class="badge-done text-xs px-3 py-1 rounded-full text-center"><i class="fa-solid fa-check mr-1"></i>Concluído</span>
+      </div>
+      <div class="cron-row cron-item reveal text-sm">
+        <span class="w-8 h-8 rounded-full bg-moss/50 border border-emerald-400/40 flex items-center justify-center text-emerald-300 text-xs font-bold">IV</span>
+        <span class="text-stone-100">Qualificação</span>
+        <span class="text-stone-400 text-xs">Mai 2026 – Set 2026</span>
+        <span class="badge-done text-xs px-3 py-1 rounded-full text-center"><i class="fa-solid fa-check mr-1"></i>Concluído</span>
+      </div>
+      <div class="cron-row cron-item reveal text-sm">
+        <span class="w-8 h-8 rounded-full bg-gold/15 border border-gold/40 flex items-center justify-center text-gold text-xs font-bold">V</span>
+        <span class="text-stone-100">Ensaios <em>In Vitro</em> pt. 2 (microdiluição)</span>
+        <span class="text-stone-400 text-xs">Set 2026 – Dez 2026</span>
+        <span class="badge-future text-xs px-3 py-1 rounded-full text-center"><i class="fa-regular fa-hourglass-half mr-1"></i>Futuro</span>
+      </div>
+      <div class="cron-row cron-item reveal text-sm">
+        <span class="w-8 h-8 rounded-full bg-gold/15 border border-gold/40 flex items-center justify-center text-gold text-xs font-bold">VI</span>
+        <span class="text-stone-100">Validação <em>In Vivo</em> (Lactuca sativa)</span>
+        <span class="text-stone-400 text-xs">Jan 2027 – Mar 2027</span>
+        <span class="badge-future text-xs px-3 py-1 rounded-full text-center"><i class="fa-regular fa-hourglass-half mr-1"></i>Futuro</span>
+      </div>
+      <div class="cron-row cron-item reveal text-sm">
+        <span class="w-8 h-8 rounded-full bg-gold/15 border border-gold/40 flex items-center justify-center text-gold text-xs font-bold">VII</span>
+        <span class="text-stone-100">Análises finais &amp; integração dados</span>
+        <span class="text-stone-400 text-xs">Abr 2027 – Ago 2027</span>
+        <span class="badge-future text-xs px-3 py-1 rounded-full text-center"><i class="fa-regular fa-hourglass-half mr-1"></i>Futuro</span>
+      </div>
+      <div class="cron-row cron-item reveal text-sm">
+        <span class="w-8 h-8 rounded-full bg-gold/15 border border-gold/40 flex items-center justify-center text-gold text-xs font-bold">VIII</span>
+        <span class="text-stone-100">Conclusão &amp; defesa</span>
+        <span class="text-stone-400 text-xs">Set 2027 – Jun 2028</span>
+        <span class="badge-future text-xs px-3 py-1 rounded-full text-center"><i class="fa-regular fa-hourglass-half mr-1"></i>Futuro</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     SEÇÃO 19 — REFERÊNCIAS E AGRADECIMENTOS
+============================================================ -->
+<section class="slide" data-name="Referências & Agradecimentos">
+  <div class="slide-inner">
+    <h2 class="section-title font-serif mb-1 reveal">Referências &amp; Agradecimentos</h2>
+    <div class="goldline mb-6 reveal"></div>
+
+    <div class="grid lg:grid-cols-2 gap-8 items-start">
+      <!-- Coluna esquerda: créditos de filme -->
+      <div class="reveal">
+        <h3 class="font-serif text-gold text-sm mb-3"><i class="fa-solid fa-book-open mr-2"></i>Referências Bibliográficas <span class="text-stone-500 font-sans text-xs">(passe o mouse para pausar)</span></h3>
+        <div id="refWindow" class="glass-strong px-6 py-2">
+          <div id="refScroll" class="text-xs leading-relaxed text-stone-300 space-y-3 py-4">
+            <p>Adesso, S., et al. (2016). Anti-inflammatory and antioxidant activity of polyphenolic extracts from Lactuca sativa (var. Maravilla de Verano) under different farming methods. Journal of the Science of Food and Agriculture, 96(12), 4187–4194. https://doi.org/10.1002/jsfa.7622</p>
+            <p>Agathokleous, E., et al. (2023). Plant hormesis: Revising of the concepts of biostimulation, elicitation and their application in a sustainable agricultural production. Science of the Total Environment, 894, Artigo 164883. https://doi.org/10.1016/j.scitotenv.2023.164883</p>
+            <p>Agathokleous, E., et al. (2024). Environmental hormesis: New developments. https://doi.org/10.1016/j.scitotenv.2023.167450</p>
+            <p>Agathokleous, E., Kitao, M., &amp; Calabrese, E. J. (2019). Hormesis: A compelling platform for sophisticated plant science. Trends in Plant Science, 24(4), 318–327. https://doi.org/10.1016/j.tplants.2019.01.004</p>
+            <p>Aguirre, G., &amp; Pilon, M. (2016). Copper delivery to chloroplast proteins and its regulation. Frontiers in Plant Science, 6, Artigo 1250. https://doi.org/10.3389/fpls.2015.01250</p>
+            <p>Ahmad, T., et al. (2023). A critical review on the biotechnological potential of brewer's spent grain. Bioresource Technology Reports, 24, Artigo 101682. https://doi.org/10.1016/j.biteb.2023.101682</p>
+            <p>Al-Khalaifah, H., et al. (2025). A One-Health perspective of antimicrobial resistance (AMR): Human, animals and environmental health. Life, 15(10), Artigo 1598. https://doi.org/10.3390/life15101598</p>
+            <p>Alessandroni, L., Marconi, R., Zannotti, M., Ferraro, S., Dolezalova, T., Piatti, D., Namazzadeh, G., Angeloni, S., &amp; Sagratini, G. (2025). Chemical characterization of hot trub and residual yeast: Exploring beer by-products for future sustainable agricultural applications. Foods, 14(12), Artigo 2081. https://doi.org/10.3390/foods14122081</p>
+            <p>Anderson, H. E., et al. (2019). A review of the analytical methods used for beer ingredient and finished product analysis and quality control. Analytica Chimica Acta, 1083, 1–20. https://doi.org/10.1016/j.aca.2019.07.061</p>
+            <p>Awerbuch, T. E., &amp; Lustman, L. (1987). A mathematical model for determining minimal inhibitory concentrations (MICs) via diffusion assays. Journal of Theoretical Biology, 129(2), 219–230. https://doi.org/10.1016/s0022-5193(87)80014-0</p>
+            <p>Bamforth, C. W., &amp; Fox, G. P. (2023). Malting and brewing. In ICC handbook of 21st century cereal science and technology.</p>
+            <p>Barreca, D., et al. (2017). Flavanones: Citrus phytochemical with health-promoting properties. BioFactors, 43(4), 495–506. https://doi.org/10.1002/biof.1364</p>
+            <p>Bartmańska, A., Wałecka-Zacharska, E., Tronina, T., Popłoński, J., Sordon, S., Brzezowska, E., Bania, J., &amp; Huszcza, E. (2018). Antimicrobial properties of spent hops extracts, flavonoids isolated therefrom, and their derivatives. Molecules, 23(8), 2059. https://doi.org/10.3390/molecules23082059</p>
+            <p>Becker, D., Niemi, P., &amp; Buchholz, K. (2022). Ferulic acid dehydrodimers, phenolamides, and oxylipins in brewer's spent grain extracts characterized by tandem mass spectrometry and HPLC-DAD. Frontiers in Bioscience-Landmark, 28(1), Artigo 3. https://doi.org/10.31083/j.fbl2801003</p>
+            <p>Belz, R. G., &amp; Duke, S. O. (2014). Herbicides and plant hormesis. Pest Management Science, 70(5), 698–707. https://doi.org/10.1002/ps.3726</p>
+            <p>Bhosale, R., Giri, J., Pandey, B. K., Giehl, R. F. H., Hartmann, A., Traini, R., Truskina, J., Leftley, N., Hanlon, M., Swarup, K., Rashed, A., Voß, U., Alonso, J., Stepanova, A., Yun, J., Ljung, K., Brown, K. M., Lynch, J. P., Dolan, L., … Swarup, R. (2018). A mechanistic framework for auxin dependent Arabidopsis root hair elongation to low external phosphate. Nature Communications, 9, Artigo 1409. https://doi.org/10.1038/s41467-018-03851-3</p>
+            <p>Bianco, A., et al. (2022). Microbial and chemical dynamics of brewers' spent grain during a low-input pre-vermicomposting treatment. Science of the Total Environment, 802, Artigo 149792. https://doi.org/10.1016/j.scitotenv.2021.149792</p>
+            <p>Birsan, R. I. (2022). Brewer's spent grain polyphenols: Recovery, characterization and bioactive properties [Tese de doutorado, University of East Anglia]. UEA Digital Repository.</p>
+            <p>Blonde, C., et al. (2025). New insights in metabolism modelling to decipher plant–microbe interactions. New Phytologist, 225(6), 2456–2476. https://doi.org/10.1111/nph.70063</p>
+            <p>Bonifácio-Lopes, T., et al. (2022). Protease-hydrolysed brewer's spent grain bioactive extracts for applications in human health. Food &amp; Function, 13(12), 6710–6721. https://doi.org/10.1039/D2FO00836A</p>
+            <p>Brain, P., &amp; Cousens, R. (1989). An equation to describe dose responses where there is stimulation of growth at low doses. Weed Research, 29(2), 93–96. https://doi.org/10.1111/j.1365-3180.1989.tb01158.x</p>
+            <p>Brasil. Presidência da República. (2019, 8 de julho). Decreto nº 9.902, de 8 de julho de 2019. Altera o Anexo ao Decreto nº 6.871, de 4 de junho de 2009, que regulamenta a Lei nº 8.918, de 14 de julho de 1994. http://www.planalto.gov.br/ccivil_03/_ato2019-2022/2019/decreto/d9902.htm</p>
+            <p>Bravo, E., et al. (2024). The effect of xanthohumol and thymol on Candida albicans filamentation and its impact on the structure, size, and cell viability of biofilms developed over implant surfaces. Cells, 13(22), Artigo 1877. https://doi.org/10.3390/cells13221877</p>
+            <p>Calabrese, E. J. (2001). Overcompensation stimulation: A mechanism for hormetic dose responses. Critical Reviews in Toxicology, 31(4-5), 425–470. https://doi.org/10.1080/20014091111740</p>
+            <p>Calabrese, E. J., &amp; Baldwin, L. A. (2003). The hormetic dose-response model is more common than the threshold model in toxicology. Toxicological Sciences, 71(2), 246–250. https://doi.org/10.1093/toxsci/71.2.246</p>
+            <p>Calabrese, E. J., &amp; Blain, R. B. (2011). The hormesis database: The occurrence of hormetic dose responses in the toxicological literature. Regulatory Toxicology and Pharmacology, 61(1), 73–81. https://doi.org/10.1016/j.yrtph.2011.06.003</p>
+            <p>Calabrese, E. J. (2013). Hormetic mechanisms. Critical Reviews in Toxicology, 43(7), 580–606. DOI: 10.3109/10408444.2013.808172</p>
+            <p>Canez, C. R., &amp; Li, L. (2024). Studies of labware contamination during lipid extraction in mass spectrometry-based lipidome analysis. Analytical Chemistry. https://doi.org/10.1021/acs.analchem.3c05431</p>
+            <p>Carillo, P., De Micco, V., Ciriello, M., Formisano, L., El-Nakhel, C., Giordano, M., Colla, G., &amp; Rouphael, Y. (2022). Morpho-anatomical, physiological, and mineral composition responses induced by a vegetal-based biostimulant at three rates of foliar application in greenhouse lettuce. Plants, 11(15), Artigo 2030. https://doi.org/10.3390/plants11152030</p>
+            <p>Carvalho, D. O., et al. (2016). Dose-dependent protective and inductive effects of xanthohumol on yeast cells under oxidative stress. Journal of Agricultural and Food Chemistry, 64(41), 7737–7744. https://doi.org/10.17113/ftb.54.01.16.4256</p>
+            <p>Cedergreen, N. (2008). Is hormesis an important factor in risk assessment of pesticides? Dose-Response, 6(3), 208–217. https://doi.org/10.2203/dose-response.07-030.Cedergreen</p>
+            <p>Cedergreen, N., Ritz, C., &amp; Streibig, J. C. (2005). Improved empirical models describing hormesis. Environmental Toxicology and Chemistry, 24(12), 3166–3172. DOI: https://doi.org/10.1897/05-014r.110.1897/05-014R.1</p>
+            <p>Chandrasekar, V., Knabel, S. J., &amp; Anantheswaran, R. C. (2015). Modeling development of inhibition zones in an agar diffusion bioassay. Food Science &amp; Nutrition, 3(5), 394–403. https://doi.org/10.1002/fsn3.232</p>
+            <p>Chang, H. S. L. R. L. (2026). Código Python para proposta de fragmentações em EEB_HT [Computer software]. Zenodo. https://doi.org/10.5281/zenodo.22071869</p>
+            <p>Chang, H. S. L. R. L. (2025). Análise Bioinformática em Lactuca sativa L. [Computer software]. Zenodo. https://doi.org/10.5281/zenodo.22082495</p>
+            <p>Chen, Y., et al. (2024). Investigating the impacts of wastewaters on lettuce (Lactuca sativa) seed germination and growth. Agriculture, 14(4), Artigo 608. https://doi.org/10.3390/agriculture14040608</p>
+            <p>Choi, H.-S., &amp; Cho, H.-T. (2019). Root hairs enhance Arabidopsis seedling survival upon soil disruption. Scientific Reports, 9, Artigo 11181. https://doi.org/10.1038/s41598-019-47733-0</p>
+            <p>Coban, O., De Deyn, G. B., &amp; van der Ploeg, M. (2022). Soil microbiota as game-changers in restoration of degraded lands. Science, 375(6584). https://doi.org/10.1126/science.abe0725</p>
+            <p>Colla, G., Hoagland, L., Ruzzi, M., Cardarelli, M., Bonini, P., Canaguier, R., &amp; Rouphael, Y. (2017). Biostimulant action of protein hydrolysates: Unraveling their effects on plant physiology and microbiome. Frontiers in Plant Science, 8, Artigo 2202. https://doi.org/10.3389/fpls.2017.02202</p>
+            <p>Cui, J., et al. (2023). Investigating the effects of organic amendments on soil microbial composition and its linkage to soil organic carbon: A global meta-analysis. Science of the Total Environment, 894, Artigo 164899. https://doi.org/10.1016/j.scitotenv.2023.164899</p>
+            <p>de Andrade Silva, G. V., Rodrigues, S., &amp; Pintado, M. (2023). Xanthohumol: Properties, extraction strategies, and applications in food and pharmaceutical industries. Food Chemistry, 404, Artigo 134629. https://doi.org/10.1016/j.foodchem.2022.134629</p>
+            <p>de Boer, W., Folman, L. B., Summerbell, R. C., &amp; Boddy, L. (2005). Living in a fungal world: impact of fungi on soil bacterial niche development. FEMS Microbiology Reviews, 29(4), 795-811. https://doi.org/10.1016/j.femsre.2004.11.005</p>
+            <p>de Oliveira Dal'Molin, C. G., et al. (2010). AraGEM, a genome-scale reconstruction of the primary metabolic network in Arabidopsis. Plant Physiology, 152(2), 579–589. https://doi.org/10.1104/pp.109.148817</p>
+            <p>Devnani, B., et al. (2023). Extraction, composition, functionality, and utilization of brewer's spent grain protein in food formulations. Foods, 12(7), Artigo 1543. https://doi.org/10.3390/foods12071543</p>
+            <p>Durello, R. S., et al. (2019). Química do lúpulo. Química Nova, 42(9), 1069–1084. https://doi.org/10.21577/0100-4042.20170412</p>
+            <p>Empresa Brasileira de Pesquisa Agropecuária [Embrapa]. (2011). Manual de curadores de germoplasma – micro-organismos: Fungos filamentosos; Embrapa Hortaliças, 134. Embrapa Recursos Genéticos e Biotecnologia.</p>
+            <p>Erofeeva, E. A. (2022). Hormesis in plants: Its common occurrence across stresses. Current Opinion in Toxicology, 30, Artigo 100333. https://doi.org/10.1016/j.cotox.2022.02.006</p>
+            <p>Esterhuizen, L., et al. (2025). AraRoot—a comprehensive genome-scale metabolic model for the Arabidopsis root system. in silico Plants, 7(1), Artigo diaf003. https://doi.org/10.1093/insilicoplants/diaf003</p>
+            <p>Faria, A. C. (2003). Utilização do bagaço de malte na alimentação animal. Ciência e Tecnologia de Alimentos, 23(3), 415–420.</p>
+            <p>Fedeli, R., et al. (2024). Hormetic effect of wood distillate on hydroponically grown lettuce. Plants, 13(3), Artigo 447. https://doi.org/10.3390/plants13030447</p>
+            <p>Fisher, M. C., Alastruey-Izquierdo, A., Berman, J., Bicanic, T., et al. (2022). Tackling the emerging threat of antifungal resistance to human health. Nature Reviews Microbiology, 20, 557–571. https://doi.org/10.1038/s41579-022-00720-1</p>
+            <p>Gayomba, S. R., &amp; Muday, G. K. (2020). Flavonols regulate root hair development by modulating accumulation of reactive oxygen species in the root epidermis. Development, 147(8), Artigo dev185819. https://doi.org/10.1242/dev.185819</p>
+            <p>Gerhäuser, C. (2005). Beer constituents as potential cancer chemopreventive agents. European Journal of Cancer, 41(13), 1941–1954. https://doi.org/10.1016/j.ejca.2005.04.014</p>
+            <p>Grafahrend-Belau, E., et al. (2013). Multiscale metabolic modeling: Dynamic flux balance analysis on a whole-plant scale. Plant Physiology, 163(2), 637–647. https://doi.org/10.1104/pp.113.224006</p>
+            <p>Grządziel, J., &amp; Gałązka, A. (2019). Functional redundancy of soil microbiota – does more always mean better? Polish Journal of Soil Science, 51(2), 245. DOI: 10.17951/pjss/2017.50.1.75</p>
+            <p>Huang, Y., Du, J., Liu, Y., Cao, X., Liu, Z., &amp; Li, M. (2022). MAPK gene family in Lactuca sativa: Genome-wide identification, regulatory network, and expression patterns in stem development and stress responses. Horticulturae, 8(11), Artigo 1087.</p>
+            <p>Ikram, S., Huang, L., Zhang, H., Wang, J., &amp; Yin, M. (2017). Composition and nutrient value proposition of brewers spent grain. Journal of Food Science, 82(10), 2232–2242. https://doi.org/10.1111/1750-3841.13794</p>
+            <p>International Organization for Standardization. (2012). Soil quality — Determination of the effects of pollutants on soil flora — Part 2: Effects of contaminated soil on the emergence and early growth of higher plants (ISO Standard No. 11269-2:2012). ISO.</p>
+            <p>Ishiai, M., et al. (2016). Identification of the xanthohumol binding protein in yeast. Bioscience, Biotechnology, and Biochemistry, 80(10), 1988–1993. https://doi.org/10.1080/09168451.2016.1194178</p>
+            <p>Jiang, C., &amp; Gates, P. J. (2024). Systematic characterisation of the fragmentation of flavonoids using high-resolution accurate mass electrospray tandem mass spectrometry. Molecules, 29(22), Artigo 5246. https://doi.org/10.3390/molecules29225246</p>
+            <p>Jornal da USP. (2021, 28 de outubro). Essencial na produção de cerveja, lúpulo brasileiro é tão bom quanto o importado, mostram estudos da USP. https://jornal.usp.br/ciencias/essencial-na-producao-de-cerveja-lupulo-brasileiro-e-tao-bom-quanto-o-importado-mostram-estudos-da-usp/</p>
+            <p>Jug, U., et al. (2020). Interference of oleamide with analytical and bioassay results. Scientific Reports, 10, Artigo 2163. https://doi.org/10.1038/s41598-020-59093-1</p>
+            <p>Kanaucho, O., Mitsuyama, K., &amp; Araki, Y. (2001). Development of a germinated barley foodstuff (GBF) for the treatment of ulcerative colitis. Journal of Gastroenterology, 36(1), 56–61. https://doi.org/10.1007/s005350170146</p>
+            <p>Kiofentzoglou, D., et al. (2025). Antimicrobial activity of chemical hop (Humulus lupulus) compounds: A systematic review and meta-analysis. Applied Sciences, 15(14), Artigo 7806. https://doi.org/10.3390/app15147806</p>
+            <p>Klančnik, A., Piskernik, S., Jeršek, B., &amp; Možina, S. S. (2010). Evaluation of diffusion and dilution methods to determine the antibacterial activity of plant extracts. Journal of Microbiological Methods, 81(2), 121-126. https://doi.org/10.1016/j.mimet.2010.02.004</p>
+            <p>Koffi, D., Kouadjo, K. F., Ira-Bonouman, A. V., Yapi, Y. S., Salmanton-García, J., Kouman, B. A., Alastruey-Izquierdo, A., Djaman, A. J., &amp; Toure, O. A. (2025). Fungal diversity, fungicide impact, and Aspergillus fumigatus azole-resistance screening in the environment of agriculture, Cote d’Ivoire. Journal of Yeast and Fungal Research, 16(2), 36–53. https://doi.org/10.5897/JYFR2025.0220</p>
+            <p>Kong, C. H., et al. (2024). Chemically mediated plant–plant interactions: Allelopathy and beyond. Plants, 13(5), Artigo 626. https://doi.org/10.3390/plants13050626</p>
+            <p>Kopeć, M., Mierzwa-Hersztek, M., Gondek, K., Wolny-Koładka, K., Zdaniewicz, M., &amp; Suder, A. (2021). The application potential of hop sediments from beer production for composting. Sustainability, 13(11), Artigo 6409. https://doi.org/10.3390/su13116409</p>
+            <p>Kostecki, J., &amp; Greinert, A. (2024). Possibility of brewery wastes application to soil as a source of organic matter and nutrients. Scientific Reports, 14(1), Artigo 15486. https://doi.org/10.1038/s41598-024-67668-5</p>
+            <p>Kunze, W. (2014). Technology brewing and malting (5th ed.). VLB Berlin.</p>
+            <p>Lemes, A. C., et al. (2021). Biological activities of hop extract and its compounds on health. International Journal of Food Properties, 24(1), 1648–1662. https://doi.org/10.1080/10942912.2021.1985338</p>
+            <p>Liu, D., et al. (2023). Brewer’s spent grain with yeast amendment shows potential for anaerobic soil disinfestation of weeds and Pythium irregulare. Agronomy, 13(8), Artigo 2081. https://doi.org/10.3390/agronomy13082081</p>
+            <p>Lordan, R., et al. (2019). Total, neutral, and polar lipids of brewing ingredients, by-products and beer: Evaluation of antithrombotic activities. Foods, 8(5), Artigo 171. https://doi.org/10.3390/foods8050171</p>
+            <p>Loureiro, P. V., et al. (2019). Determination of xanthohumol in hops, food supplements and beers by HPLC. Foods, 8(10), Artigo 435. https://doi.org/10.3390/foods8100435</p>
+            <p>Lovett, J. V., &amp; Hoult, A. H. C. (1995). Allelopathy and self-defense in barley. In Inderjit, K. M. M. Dakshini, &amp; F. A. Einhellig (Eds.), Allelopathy: Organisms, processes, and applications (ACS Symposium Series, Vol. 582, pp. 170–183). American Chemical Society. https://doi.org/10.1021/bk-1995-0582.ch013</p>
+            <p>Ma, J., et al. (2015). Validated UPLC–MS/MS method for determination of hordenine in rat plasma and its application to pharmacokinetic study. Journal of Pharmaceutical and Biomedical Analysis. https://doi.org/10.1016/j.jpba.2015.03.032</p>
+            <p>Macías, F. A., Molinillo, J. M., Varela, R. M., &amp; Galindo, J. C. (2007). Allelopathy—a natural alternative for weed control. Pest Management Science, 63(4), 327–348. https://doi.org/10.1002/ps.1342</p>
+            <p>Macías-Garbett, R., Serna-Hernández, J. A., &amp; Gutiérrez-Miceli, F. A. (2021). Phenolic compounds from brewer's spent grains: Toward green recovery methods and applications in the cosmetic industry. Frontiers in Sustainable Food Systems, 5, Artigo 681684. https://doi.org/10.3389/fsufs.2021.681684</p>
+            <p>Maguire, J. D. (1962). Speed of germination — Aid in selection and evaluation for seedling emergence and vigor. Crop Science, 2(2), 176–177. http://dx.doi.org/10.2135/cropsci1962.0011183X000200020033x</p>
+            <p>Manolikaki, I., &amp; Diamadopoulos, E. (2020). Agronomic potential of biochar prepared from brewery byproducts. Journal of Environmental Management, 253, Artigo 109733. https://doi.org/10.1016/j.jenvman.2019.109856</p>
+            <p>Mangaravite, É., et al. (2025). Genome-scale metabolic models in plant stress physiology: Implications for future climate resilience. Plant Physiology, Artigo kiaf406. https://doi.org/10.1093/plphys/kiaf406</p>
+            <p>Martin, R. E., Marzol, E., Estevez, J. M., &amp; Muday, G. K. (2022). Ethylene signaling increases reactive oxygen species accumulation to drive root hair initiation in Arabidopsis. Development, 149(13), Artigo dev200487. https://doi.org/10.1242/dev.200487</p>
+            <p>Mathias, T. R. S., et al. (2015). Brewer's spent grain: A review of its potentials and applications. African Journal of Biotechnology, 14(10), 868–876. https://doi.org/10.5897/AJB2014.14281</p>
+            <p>Mathias, T. R. S., Mello, P. P. M., &amp; Servulo, E. F. C. (2015). Caracterização de resíduos cervejeiros. Anais do XX Congresso Brasileiro de Engenharia Química, 3805–3812. https://doi.org/10.5151/chemeng-cobeq2014-0668-24515-175166</p>
+            <p>Maver, M., et al. (2022). The interplay between nitrogenated allelochemicals, mineral nutrition and metabolic profile in barley roots. Plant and Soil, 479, 715–730. https://doi.org/10.1007/s11104-022-05553-8</p>
+            <p>McDonald, J. H. (2014). Handbook of biological statistics (3ª ed.). Sparky House Publishing.</p>
+            <p>Meneses, N. G. T., Martins, S., Teixeira, J. A., &amp; Mussatto, S. I. (2013). Influence of extraction solvents on the recovery of antioxidant phenolic compounds from brewer's spent grains. Separation and Purification Technology, 108, 152–158. https://doi.org/10.1016/j.seppur.2013.02.015</p>
+            <p>Miao, P., Wang, H., Wang, W., Wang, Z., Ke, H., Cheng, H., Ni, J., Liang, J., Yao, Y., Wang, J., Zhou, J., &amp; Lei, X. (2025). A widespread plant defense compound disarms bacterial type III injectisome assembly. Science, 387 6737, eads0377.</p>
+            <p>Michaelis, L., &amp; Menten, M. L. (1913). Die Kinetik der Invertinwirkung. Biochemische Zeitschrift, 49, 333–369.</p>
+            <p>Mittler, R., et al. (2022). Reactive oxygen species signaling in plant stress responses. Nature Reviews Molecular Cell Biology, 23, 663–679. https://doi.org/10.1038/s41580-022-00499-2</p>
+            <p>Mussatto, S. I.; Dragone, G.; Roberto, I. C. (2006). Brewers' spent grain: Generation, characteristics and potential applications. Journal of Cereal Science, v. 43, n. 1, p. 1–14. DOI: https://doi.org/10.1016/j.jcs.2005.06.001</p>
+            <p>Nascimento, D. V., &amp; Lopes, H. A. (2018). Monitoramento, sensoriamento e controle remoto na produção de cerveja artesanal [Trabalho de Conclusão de Curso, Universidade Federal Fluminense].</p>
+            <p>Nikolaeva, E. B., Berezhneva, Z. A., &amp; Berezin, A. A. (2026). Lactuca sativa L.: Cultivation, phytochemical composition, application, breeding and genetic research. Biomics, 18(1), 65–95. https://doi.org/10.31301/2221-6197.bmcs.2026-5</p>
+            <p>Nionelli, L., et al. (2018). Use of hop extract as antifungal ingredient for bread making and selection of autochthonous resistant starters for sourdough fermentation. International Journal of Food Microbiology, 266, 35–45. https://doi.org/10.1016/j.ijfoodmicro.2017.11.017</p>
+            <p>Oberhardt, M. A., Palsson, B. Ø., &amp; Papin, J. A. (2009). Applications of genome-scale metabolic reconstructions. Molecular Systems Biology, 5, Article 320. https://doi.org/10.1038/msb.2009.77</p>
+            <p>OECD. (2006). Guidance document on statistical analysis of ecotoxicity data (Series on Testing and Assessment No. 54). Organisation for Economic Co-operation and Development. https://www.oecd.org/chemicalsafety/testing/33692701.pdf</p>
+            <p>OECD (2006), Test No. 208: Terrestrial Plant Test: Seedling Emergence and Seedling Growth Test, OECD Guidelines for the Testing of Chemicals, Section 2, OECD Publishing, Paris, https://doi.org/10.1787/9789264070066-en.</p>
+            <p>Orth, J. D., et al. (2010). What is flux balance analysis? Nature Biotechnology, 28(3), 245–248. https://doi.org/10.1038/nbt.1614</p>
+            <p>Overland, L. (1966). The role of allelopathic substances in the "smother crop" barley. American Journal of Botany, 53(5), 423–432.</p>
+            <p>Paniagua-García, A. I., Ibáñez, A., &amp; Díez-Antolínez, R. (2025). Green antimicrobials: Innovative applications of hops extracts as biocontrol agents. Pathogens, 14(5), Artigo 418. https://doi.org/10.3390/pathogens14050418</p>
+            <p>Priac, A., Badot, P.-M., &amp; Crini, G. (2017). Treated wastewater phytotoxicity assessment using Lactuca sativa: Focus on germination and root elongation test parameters. Comptes Rendus Biologies, 340(3), 188–194. https://doi.org/10.1016/j.crvi.2017.01.002</p>
+            <p>Ravi, S., &amp; Gunawan, R. (2021). ΔFBA—Predicting metabolic flux alterations using genome-scale metabolic models and differential transcriptomic data. PLOS Computational Biology, 17, Artigo e1009589. https://doi.org/10.1371/journal.pcbi.1009589</p>
+            <p>Ratti, C. (2001). Hot air and freeze-drying of high-value foods: A review. Journal of Food Engineering, v. 49, n. 4, p. 311–319. DOI: https://doi.org/10.1016/S0260-8774(00)00228-4</p>
+            <p>Retiberg, N., et al. (2018). Hop polyphenols: Structure, bioactivity, and analysis. In Handbook of dietary phytochemicals. Springer. https://doi.org/10.1007/978-981-13-1745-3_24</p>
+            <p>Ribau Teixeira, M., et al. (2020). Brewery spent grain: A review of its potential applications in the food industry. Trends in Food Science &amp; Technology, 105, 335–347. https://doi.org/10.1016/j.tifs.2020.09.016</p>
+            <p>Ritz, C., &amp; Streibig, J. C. (2005). Bioassay analysis using R. Journal of Statistical Software, 12(5), 1–22. https://doi.org/10.18637/jss.v012.i05</p>
+            <p>Ritz, C. (2010). Toward a unified approach to dose-response modeling in ecotoxicology. Environmental Toxicology and Chemistry, 29(1), 220–229. DOI: 10.1002/etc.7</p>
+            <p>Ritz, C., Baty, F., Streibig, J. C., &amp; Gerhard, D. (2015). Dose-response analysis using R. PLOS ONE, 10(12), Artigo e0146021. https://doi.org/10.1371/journal.pone.0146021</p>
+            <p>Rouphael Y. &amp; Colla G. (2020) Editorial: Biostimulants in Agriculture. Front. Plant Sci. 11:40. doi: 10.3389/fpls.2020.00040</p>
+            <p>Rutnik, K., Knez Hrnčič, M., &amp; Jože Košir, I. (2022). Hop Essential Oil: Chemical Composition, Extraction, Analysis, and Applications. Food Reviews International, 38(sup1), 529–551. https://doi.org/10.1080/87559129.2021.1874413</p>
+            <p>Salanță, L. C., Fărcaș, A. C., Borșa, A., &amp; Pop, C. R. (2023). Current strategies for the management of valuable compounds from hops waste for a circular economy. Food Chemistry: X, 19, Artigo 100876. https://doi.org/10.1016/j.fochx.2023.100876</p>
+            <p>Santos, M., et al. (2003). Variability of brewer's spent grain within a brewery. Food Chemistry, 80(1), 17–21.https://doi.org/10.1016/S0308-8146(02)00229-7</p>
+            <p>Sarkar, S., et al. (2021). Brewer's spent grain: A potential substrate for anaerobic digestion and value-added products. Bioresource Technology, 337, Artigo 125441. https://doi.org/10.1016/j.biortech.2021.125441</p>
+            <p>Schabenberger, O., Tharp, B. E., Kells, J. J., &amp; Penner, D. (1999). Statistical tests for hormesis and effective dosages in herbicide dose response. Agronomy Journal, 91(4), 713–721. DOI: 10.2134/agronj1999.914713x</p>
+            <p>Semeradova, H., et al. (2020). All roads lead to auxin: Post-translational regulation of auxin transport by multiple hormonal pathways. Plant Communications, 1(2), Artigo 100048. https://doi.org/10.1016/j.xplc.2020.100048</p>
+            <p>Almeida, A. da R., Geraldo, M. R. F., Ribeiro, L. F., Silva, M. V., Maciel, M. V. de O. B., &amp; Haminiuk, C. W. I. (2017). Bioactive compounds from brewer´s spent grain: phenolic compounds, fatty acids and in vitro antioxidant capacity. Acta Scientiarum. Technology, 39(3), 269-277. https://doi.org/10.4025/actascitechnol.v39i3.28435</p>
+            <p>Shahinozzaman, M., Islam, M., et al. (2021). A review on chemistry, source and therapeutic potential of lambertianic acid. Zeitschrift für Naturforschung C, 76, 347–356. https://doi.org/10.1515/znc-2020-0267</p>
+            <p>Shams, M., Yildirim, E., Agar, G., Ercisli, S., Dursun, A., Ekinci, M., &amp; Kul, R. (2018). Nitric oxide alleviates copper toxicity in germinating seed and seedling growth of Lactuca sativa L. Notulae Botanicae Horti Agrobotanici Cluj-Napoca, 46(1), 167–172. https://doi.org/10.15835/nbha46110912</p>
+            <p>Shaw, R., &amp; Cheung, M. C. Y. (2021). Integration of crop growth model and constraint-based metabolic model predicts metabolic changes over rice plant development under water-limited stress. in silico Plants, 3(2), Artigo diab020. https://doi.org/10.1093/insilicoplants/diab020</p>
+            <p>Sorrentino, M. C., et al. (2024). Seed priming by low-dose radiation improves growth of Lactuca sativa and Valerianella locusta. Plants, 13(2), Artigo 165. https://doi.org/10.3390/plants13020165</p>
+            <p>Stachnik, M., Sterczyńska, M., Smarzewska, E., Ptaszek, A., Piepiórka-Stepuk, J., Ageev, O., &amp; Jakubowski, M. (2021). Rheological properties of industrial hot trub. Materials, 14(23), 7162. https://doi.org/10.3390/ma14237162</p>
+            <p>Stevens, J. F., &amp; Page, J. E. (2004). Xanthohumol and related prenylflavonoids from hops and beer: To your good health! Phytochemistry, 65(10), 1317–1330. https://doi.org/10.1016/j.phytochem.2004.04.025</p>
+            <p>Stevens, J. F., Taylor, A. W., &amp; Deinzer, M. L. (1999). Quantitative analysis of xanthohumol and related prenylflavonoids in hops and beer by liquid chromatography–tandem mass spectrometry. Journal of Chromatography A. https://doi.org/10.1016/S0021-9673(98)01001-2</p>
+            <p>Stevens, J. F., et al. (2018). Xanthohumol, what a delightful problem child! ACS Symposium Series, 1286, 211–228. https://doi.org/10.1021/bk-2018-1286.ch015</p>
+            <p>Sturm, B., Butcher, M., &amp; Petri, T. (2012). Environmental assessment of brewery spent grain disposal. Sustainable Food Systems, 5(2), 115–125.</p>
+            <p>Tombini, C., de Vargas, P. F., Feltes, M. M. C., Lajús, C. R., de Mello, J. M. M., &amp; Dalcanton, F. (2023). Centesimal, Physico-Chemical, Bioactive and Microbiological Characterization of Pilsen-Type Malt Bagasse. Revista De Gestão Social E Ambiental, 18(1), e04391. https://doi.org/10.24857/rgsa.v18n1-022</p>
+            <p>Tsuda, E., Yang, H., Nishimura, T., Uehara, Y., Sakai, T., Furutani, M., Koshiba, T., Hirose, M., Nozaki, H., Murphy, A. S., &amp; Hayashi, K. (2011). Alkoxy-auxins are selective inhibitors of auxin transport mediated by PIN, ABCB, and AUX1 transporters. The Journal of biological chemistry, 286(3), 2354–2364. https://doi.org/10.1074/jbc.M110.171165</p>
+            <p>U.S. Environmental Protection Agency. (2012). Seedling emergence and seedling growth (OCSPP 850.4200).</p>
+            <p>Valerio, M. E., García, J. F., &amp; Peinado, F. M. (2007). Determination of phytotoxicity of soluble elements in soils, based on a bioassay with lettuce (Lactuca sativa L.). Science of the Total Environment, 378, 63–66. https://doi.org/10.1016/j.scitotenv.2007.01.007</p>
+            <p>Vargas-Hernández, M., et al. (2017). Plant hormesis management with biostimulants of biotic origin in agriculture. Frontiers in Plant Science, 8, Artigo 1762. https://doi.org/10.3389/fpls.2017.01762</p>
+            <p>Venturelli, S., Burkard, M., Biendl, M., Lauer, U. M., Frank, J., &amp; Busch, C. (2016). Prenylated chalcones and flavonoids for the prevention and treatment of cancer. Nutrition, 32(11-12), 1171–1178. https://doi.org/10.1016/j.nut.2016.03.020</p>
+            <p>Verni, M., Coda, R., &amp; Gobbetti, M. (2020). Bioprocessing of brewers' spent grain enhances its nutritional value and bioactive properties. Frontiers in Microbiology, 11, Artigo 1831. https://doi.org/10.3389/fmicb.2020.01831</p>
+            <p>Vissenberg, K., Claeijs, N., Balcerowicz, D., &amp; Schoenaers, S. (2020). Hormonal regulation of root hair growth and responses to the environment in Arabidopsis. Journal of Experimental Botany, 71(8), 2412–2427. https://doi.org/10.1093/jxb/eraa048</p>
+            <p>Wang, W. (1991). Literature review on higher plants for toxicity testing. Water, Air, and Soil Pollution, 29, 405–416. https://doi.org/10.1007/BF00211845</p>
+            <p>Wasternack, C., &amp; Feussner, I. (2018). The oxylipin pathways: Biochemistry and function. Annual Review of Plant Biology, 69, 363–386. https://doi.org/10.1146/annurev-arplant-042817-040440</p>
+            <p>Wenzel, C. L., et al. (2024). The effects of auxin transport inhibition on the formation of complex venation patterns in Arabidopsis and pea. Plants, 13(18), Artigo 2566. https://doi.org/10.3390/plants13182566</p>
+            <p>Widder, S., Allen, R. J., Pfeiffer, T., Curtis, T. P., Wiuf, C., Sloan, W. T., ... &amp; Soyer, O. S. (2016). Challenges in microbial ecology: building predictive understanding of community function and dynamics. The ISME Journal, 10(11), 2557-2568. https://doi.org/10.1038/ismej.2016.45</p>
+            <p>Wu, B., et al. (2024). Soil organic carbon, carbon fractions, and microbial community under various organic amendments. Scientific Reports, 14(1), Artigo 25431. https://doi.org/10.1038/s41598-024-75771-w</p>
+            <p>Xu, E., Liu, Y., Gu, D., Zhan, X., Li, J., Zhou, K., Zhang, P., &amp; Zou, Y. (2024). Molecular mechanisms of plant responses to copper: From deficiency to excess. International Journal of Molecular Sciences, 25(13), Artigo 6993. https://doi.org/10.3390/ijms25136993</p>
+            <p>Yan, Y.-F., et al. (2021). The antifungal mechanism of isoxanthohumol from Humulus lupulus Linn. International Journal of Molecular Sciences, 22(19), Artigo 10853. https://doi.org/10.3390/ijms221910853</p>
+            <p>Ye, J.-B. et al. Characterization and Identification of Prenylated Flavonoids from Artocarpus heterophyllus Lam. Roots by Quadrupole Time-of-Flight and Linear Trap Quadrupole Orbitrap Mass Spectrometry. Molecules, v. 24, n. 24, p. 4591, 2019. DOI: 10.3390/molecules24244591</p>
+            <p>Yuan Longyu, YU Danfeng, Xiao Hanxiang, LI Hui, Dai Yangsuo, Li Yanfang, Zhang Zhenfei. Hormesis in Agricultural Ecosystems: Regulatory Mechanisms, Application Fields, and Research Prospects[J]. Guangdong Agricultural Sciences, 2026, 53(6): 1-11. DOI: 10.16768/j.issn.1004-874X.2026.06.001</p>
+            <p>Zar, J. H. (2010). Biostatistical analysis (5ª ed.). Pearson Prentice Hall.</p>
+            <p>Zhou, J., Liu, P., Xia, J., &amp; Zhuang, Y. (2021). Advances in the development of constraint-based genome-scale metabolic network models. Shengwu Gongcheng Xuebao/Chinese Journal of Biotechnology.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Coluna direita: OBRIGADO + agradecimentos -->
+      <div class="reveal space-y-6 flex flex-col justify-center h-full">
+        <div class="glass-strong rounded-3xl py-16 px-8 text-center border-2 border-gold/40">
+          <p class="font-serif text-amber-500 text-6xl md:text-7xl font-black tracking-wide">OBRIGADO!</p>
+          <p class="text-sm text-stone-300 mt-4 italic font-serif">“Do resíduo cervejeiro ao bioinsumo: ciência de dados vivos.”</p>
+        </div>
+        <div class="glass p-6 rounded-2xl">
+          <p class="text-sm leading-relaxed text-stone-200">
+            <i class="fa-solid fa-heart text-gold mr-2"></i>Agradecimentos especiais ao <strong>NECERVA-ENUT</strong>,
+            <strong>Laboratório de Microbiologia e Micologia da EFAR</strong>, <strong>FioCruz</strong>,
+            <strong>CAPES</strong>, <strong>BIOTEC</strong> e a todos aqueles que contribuíram para este trabalho até agora.
+          </p>
+          <p class="text-xs text-stone-400 mt-4"><i class="fa-solid fa-envelope-open-text text-gold mr-1"></i>Hikari Shin Lovestain C. R. Lima — Qualificação de Doutorado, 2026.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+<!-- ============================================================
+     SCRIPT PRINCIPAL — navegação, animações, interatividade
+============================================================ -->
+<script>
+/* =====================================================================
+   0. HELPERS GERAIS
+===================================================================== */
+const BASE = 'https://raw.githubusercontent.com/hikarishinlovestain-ui/qualidoc/main/';
+const slides = Array.from(document.querySelectorAll('.slide'));
+let current = 0;
+let animating = false;
+
+gsap.registerPlugin(ScrollTrigger, ScrollToPlugin);
+
+/* =====================================================================
+   1. NAVEGAÇÃO POR SLIDES (teclado, roda do mouse, botões, dots)
+   Transições suaves com GSAP (fade + slide vertical)
+===================================================================== */
+function updateUI(){
+  document.getElementById('counter').textContent = (current+1) + ' / ' + slides.length +
+    '  ·  ' + slides[current].dataset.name;
+  document.getElementById('progress').style.width = ((current)/(slides.length-1)*100) + '%';
+  document.querySelectorAll('#dotnav .dot').forEach((d,i)=> d.classList.toggle('on', i===current));
+}
+
+function buildDots(){
+  const nav = document.getElementById('dotnav');
+  slides.forEach((s,i)=>{
+    const d = document.createElement('div');
+    d.className = 'dot' + (i===0?' on':'');
+    d.title = s.dataset.name;
+    d.addEventListener('click', ()=> goTo(i));
+    nav.appendChild(d);
+  });
+}
+
+function animateIn(slide){
+  // Reveal escalonado dos elementos internos
+  const els = slide.querySelectorAll('.reveal, .hyp, .concl, .cron-item');
+  gsap.killTweensOf(els);
+  gsap.set(els, {opacity:0, y:26});
+  gsap.to(els, {opacity:1, y:0, duration:.65, stagger:.07, ease:'power2.out', delay:.15});
+  if(slide.classList.contains('title-slide')){
+    const hero = slide.querySelectorAll('.hero-el');
+    gsap.killTweensOf(hero);
+    gsap.fromTo(hero, {opacity:0, y:40}, {opacity:1, y:0, duration:.9, stagger:.18, ease:'power3.out'});
+  }
+  // Esquema da placa de Petri (Seção 8) — anima quando o slide entra
+  if(slide.querySelector('#petri')) runPetriAnimation();
+}
+
+function goTo(index, direction){
+  if(animating || index===current || index<0 || index>=slides.length) return;
+  animating = true;
+  const dir = direction || (index>current ? 1 : -1);
+  const oldSlide = slides[current];
+  const newSlide = slides[index];
+  current = index;
+
+  gsap.set(newSlide, {visibility:'visible', opacity:0, zIndex:3, y: dir*60});
+  newSlide.classList.add('active');
+
+  gsap.to(oldSlide, {opacity:0, y:-dir*60, duration:.45, ease:'power2.in', onComplete:()=>{
+    oldSlide.classList.remove('active');
+    gsap.set(oldSlide, {visibility:'hidden'});
+  }});
+  gsap.to(newSlide, {opacity:1, y:0, duration:.55, ease:'power2.out', onComplete:()=>{
+    newSlide.style.zIndex = 2;
+    animating = false;
+    animateIn(newSlide);
+  }});
+  updateUI();
+}
+
+const nextSlide = ()=> goTo(current+1, 1);
+const prevSlide = ()=> goTo(current-1, -1);
+
+document.getElementById('nextBtn').addEventListener('click', nextSlide);
+document.getElementById('prevBtn').addEventListener('click', prevSlide);
+
+/* Teclado: ← → e ↑ ↓.
+   ↑/↓ primeiro rolam gradativamente o conteúdo interno do slide (quando há
+   seções longas com scroll); ao atingir o topo/fim, avançam para o slide anterior/próximo. */
+window.addEventListener('keydown', (e)=>{
+  if(document.getElementById('lightbox').classList.contains('open')){
+    if(e.key==='Escape') closeLightbox();
+    e.preventDefault();               // bloqueia navegação do deck enquanto o lightbox está aberto
+    return;
+  }
+  if(/^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement?.tagName)) return; // não sequestrar teclas dentro de sliders/campos
+  const inner = slides[current].querySelector('.slide-inner');
+  const scrollable = inner && inner.scrollHeight > inner.clientHeight + 4;
+  switch(e.key){
+    case 'ArrowRight': case 'PageDown': e.preventDefault(); nextSlide(); break;
+    case 'ArrowLeft':  case 'PageUp':   e.preventDefault(); prevSlide(); break;
+    case 'ArrowDown':{
+      e.preventDefault();
+      if(scrollable){
+        const atBottom = inner.scrollTop + inner.clientHeight >= inner.scrollHeight - 2;
+        if(!atBottom){ inner.scrollBy({top: Math.round(inner.clientHeight*0.7), behavior:'smooth'}); break; }
+      }
+      if(animating) break; goTo(current+1, 1);
+      break;
+    }
+    case 'ArrowUp':{
+      e.preventDefault();
+      if(scrollable){
+        if(inner.scrollTop > 0){ inner.scrollBy({top: -Math.round(inner.clientHeight*0.7), behavior:'smooth'}); break; }
+      }
+      if(animating) break; goTo(current-1, -1);
+      break;
+    }
+    case ' ':          e.preventDefault(); nextSlide(); break;
+    case 'Home':       e.preventDefault(); goTo(0,-1); break;
+    case 'End':        e.preventDefault(); goTo(slides.length-1,1); break;
+  }
+});
+
+/* Roda do mouse (com trava anti-spam) */
+let wheelLock = false;
+window.addEventListener('wheel', (e)=>{
+  if(wheelLock || animating) return;
+  if(e.target.closest('input[type="range"]')) return; // deixa o usuário ajustar sliders sem trocar de slide
+  // Deixa rolar dentro do slide-inner se ele tiver conteúdo transbordando
+  const inner = slides[current].querySelector('.slide-inner');
+  if(inner && inner.scrollHeight > inner.clientHeight + 4){
+    const atTop = inner.scrollTop <= 0;
+    const atBottom = inner.scrollTop + inner.clientHeight >= inner.scrollHeight - 2;
+    if((e.deltaY > 0 && !atBottom) || (e.deltaY < 0 && !atTop)) return;
+  }
+  wheelLock = true;
+  (e.deltaY > 0 ? nextSlide : prevSlide)();
+  setTimeout(()=> wheelLock = false, 900);
+}, {passive:true});
+
+/* Suporte a toque (swipe vertical) em dispositivos móveis */
+let touchY = null;
+window.addEventListener('touchstart', e=> touchY = e.touches[0].clientY, {passive:true});
+window.addEventListener('touchend', e=>{
+  if(touchY===null) return;
+  const dy = e.changedTouches[0].clientY - touchY;
+  if(Math.abs(dy) > 60){ dy < 0 ? nextSlide() : prevSlide(); }
+  touchY = null;
+}, {passive:true});
+
+/* =====================================================================
+   2. LIGHTBOX (zoom em todas as imagens .zoomable)
+===================================================================== */
+function openLightbox(src, cap){
+  document.getElementById('lbImg').src = src;
+  document.getElementById('lbCap').textContent = cap || '';
+  document.getElementById('lightbox').classList.add('open');
+}
+function closeLightbox(){
+  document.getElementById('lightbox').classList.remove('open');
+}
+/* Fecha ao clicar no fundo (fora da imagem), na própria imagem ou no botão X */
+document.getElementById('lightbox').addEventListener('click', (e)=>{
+  if(e.target.id==='lightbox' || e.target.id==='lbImg' || e.target.closest('.lb-close')) closeLightbox();
+});
+/* LIGHTBOX UNIVERSAL: delegação global de clique — QUALQUER <img> do
+   documento abre o modal em tela cheia (fundo preto 90%, imagem 90vw/90vh).
+   Fecha com X, clique fora ou tecla ESC. */
+document.addEventListener('click', (e)=>{
+  const img = e.target.closest('img');
+  if(img && img.id !== 'lbImg'){
+    e.preventDefault();
+    e.stopPropagation();
+    /* contêineres [data-src] (ex.: linhas da tabela fitoquímica) podem usar src próprio */
+    const card = e.target.closest('[data-src]');
+    const src  = (card ? card.dataset.src : null) || img.src;
+    const cap  = (card ? card.dataset.cap : null) || img.dataset.cap || img.alt;
+    openLightbox(src, cap);
+    return;
+  }
+  const zone = e.target.closest('.zoomable[data-src]'); /* divs clicáveis sem <img> */
+  if(zone){ openLightbox(zone.dataset.src, zone.dataset.cap || ''); }
+});
+
+/* =====================================================================
+   2b. SEÇÃO 12 — TOOLTIP DE FRAGMENTAÇÃO NA TABELA FITOQUÍMICA
+       Hover no NOME do composto -> tooltip com a imagem da proposta de
+       fragmentação; clique na imagem do tooltip -> Lightbox global.
+===================================================================== */
+(function(){
+  const tip     = document.getElementById('fragTooltip');
+  const tipImg  = document.getElementById('fragTipImg');
+  const tipName = document.getElementById('fragTipName');
+  if(!tip || !tipImg || !tipName) return;
+  let hideTimer = null;
+
+  function showTip(row, anchor){
+    clearTimeout(hideTimer);
+    const img = row.dataset.img, cap = row.dataset.cap;
+    if(!img) return;
+    tipImg.src = img;
+    tipImg.dataset.cap = cap || '';
+    tipImg.alt = cap || 'Proposta de fragmentação';
+    tipName.textContent = (row.querySelector('.comp-name')||{}).textContent || '';
+    tip.classList.remove('hidden');
+    // posiciona próximo ao nome do composto, dentro da viewport
+    const r = anchor.getBoundingClientRect();
+    const tw = tip.offsetWidth || 300, th = tip.offsetHeight || 300;
+    let left = r.left + r.width/2 - tw/2;
+    let top  = r.top - th - 12;
+    if(top < 8) top = r.bottom + 12;
+    left = Math.max(8, Math.min(left, window.innerWidth - tw - 8));
+    top  = Math.max(8, Math.min(top,  window.innerHeight - th - 8));
+    tip.style.left = left + 'px';
+    tip.style.top  = top  + 'px';
+  }
+  function scheduleHide(){
+    hideTimer = setTimeout(()=> tip.classList.add('hidden'), 250);
+  }
+
+  document.querySelectorAll('tr.comp-row').forEach(row=>{
+    const name = row.querySelector('.comp-name');
+    if(!name) return;
+    name.addEventListener('mouseenter', ()=> showTip(row, name));
+    name.addEventListener('mouseleave', scheduleHide);
+    // toque em telas pequenas: um toque mostra o tooltip
+    name.addEventListener('touchstart', (ev)=>{ ev.stopPropagation(); showTip(row, name); }, {passive:true});
+  });
+  tip.addEventListener('mouseenter', ()=> clearTimeout(hideTimer));
+  tip.addEventListener('mouseleave', scheduleHide);
+  // clique na imagem do tooltip -> abre no lightbox (delegação global cuida disso);
+  // ao fechar o lightbox, esconde o tooltip
+  document.getElementById('lightbox').addEventListener('click', ()=> tip.classList.add('hidden'));
+})();
+
+/* =====================================================================
+   3. ABAS DA SEÇÃO 7 (Curadoria AraGEM) — transição suave GSAP
+===================================================================== */
+document.querySelectorAll('.tab-btn').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    document.querySelectorAll('.tab-btn').forEach(b=> b.classList.remove('on'));
+    btn.classList.add('on');
+    const target = document.getElementById(btn.dataset.tab);
+    document.querySelectorAll('.tab-panel').forEach(p=>{
+      if(p===target) return;
+      gsap.to(p, {opacity:0, y:8, duration:.18, onComplete:()=> p.classList.remove('on')});
+    });
+    target.classList.add('on');
+    gsap.fromTo(target, {opacity:0, y:14}, {opacity:1, y:0, duration:.4, ease:'power2.out', delay:.1});
+  });
+});
+
+/* =====================================================================
+   4. VÍDEOS CONTROLADOS POR HOVER
+===================================================================== */
+// 4a. Vídeo Curadoria AraGEM — toca em loop silencioso no hover
+const aragemBox = document.getElementById('aragemBox');
+const aragemVideo = document.getElementById('aragemVideo');
+if(aragemBox && aragemVideo){
+  /* EXCEÇÃO declarada: background visual em loop silencioso no hover */
+  aragemBox.addEventListener('mouseenter', ()=> aragemVideo.play().catch(()=>{}));
+  aragemBox.addEventListener('mouseleave', ()=> aragemVideo.pause());
+  /* bônus: clique também alterna play/pause */
+  aragemBox.addEventListener('click', ()=>{
+    if(aragemVideo.paused){ aragemVideo.play().catch(()=>{}); } else { aragemVideo.pause(); }
+  });
+}
+
+// 4b. Vídeo plaqueamento de sementes — PLAY/PAUSE AO CLICAR na caixa do vídeo
+const plaqueVideo = document.getElementById('plaqueVideo');
+const plaqueBox   = document.getElementById('plaqueBox');
+if(plaqueVideo && plaqueBox){
+  plaqueBox.addEventListener('click', ()=>{
+    if(plaqueVideo.paused){ plaqueVideo.play().catch(()=>{}); }
+    else{ plaqueVideo.pause(); }
+  });
+}
+
+// 4c. Vídeo solo total (Seção 10) — embutido no slide, PLAY/PAUSE AO CLICAR na caixa
+const soilVideo = document.getElementById('soilVideo');
+const soilBox   = document.getElementById('soilBox');
+if(soilVideo && soilBox){
+  soilBox.addEventListener('click', ()=>{
+    if(soilVideo.paused){ soilVideo.play().catch(()=>{}); }
+    else{ soilVideo.pause(); }
+  });
+}
+
+/* Pausa todos os vídeos ao trocar de slide (economia de recursos) */
+function pauseAllVideos(){
+  document.querySelectorAll('video').forEach(v=>{ try{ v.pause(); }catch(e){} });
+}
+
+/* =====================================================================
+   5. ESQUEMA ANIMADO DA PLACA DE PETRI (Seção 8)
+===================================================================== */
+function runPetriAnimation(){
+  const petri = document.getElementById('petri');
+  if(!petri) return;
+  // remove sementes antigas
+  petri.querySelectorAll('.seed').forEach(s=> s.remove());
+  // injeta 20 sementinhas em anel pseudoaleatório
+  for(let i=0;i<20;i++){
+    const seed = document.createElement('div');
+    seed.className = 'seed';
+    const ang = (i/20)*Math.PI*2 + Math.random()*0.3;
+    const rad = 38 + Math.random()*30;
+    seed.style.left = `calc(50% + ${Math.cos(ang)*rad}px)`;
+    seed.style.top  = `calc(50% + ${Math.sin(ang)*rad}px)`;
+    seed.style.transform = `rotate(${ang*180/Math.PI}deg)`;
+    petri.appendChild(seed);
+  }
+  const seeds = petri.querySelectorAll('.seed');
+  gsap.fromTo(seeds, {scale:0, opacity:0}, {scale:1, opacity:1, duration:.4, stagger:.06, ease:'back.out(2)', delay:.4});
+  gsap.fromTo('#petriSteps .pstep', {opacity:0, x:-16}, {opacity:1, x:0, duration:.45, stagger:.25, delay:.3, ease:'power2.out'});
+}
+
+/* =====================================================================
+   6. GRÁFICO CHART.JS INTERATIVO (Seção 13) — FBA dose-resposta
+   Modelos matemáticos:
+     EEB-HT: hormese  -> v(C) = 1 + α·exp(-½((C-Co)/σ)²) − β·C²
+     EEB-BM: MM       -> v(C) = Vmax·C/(Km+C), assintótico ~1.12
+===================================================================== */
+const ALPHA=0.22, COPT=45, SIGMA=60, BETA=2.6e-6;   // parâmetros horméticos (unidades mg/L)
+const VMAX=1.12, KM=180;                              // parâmetros Michaelis-Menten
+const hormesis = C => 1 + ALPHA*Math.exp(-0.5*Math.pow((C-COPT)/SIGMA,2)) - BETA*C*C;
+const mm       = C => 1 + (VMAX-1)*C/(KM+C);
+
+// pontos base das curvas (0..1000 mg/L)
+const conc = [];
+for(let c=0;c<=1000;c+=20) conc.push(c);
+
+let fbaChart = null;
+function buildChart(){
+  const ctx = document.getElementById('fbaChart');
+  if(!ctx || typeof Chart==='undefined'){ console.warn('Chart.js indisponível'); return; }
+  fbaChart = new Chart(ctx, {
+    type:'line',
+    data:{
+      datasets:[
+        { label:'Controle (=1,0)', data: conc.map(c=>({x:c,y:1})),
+          borderColor:'rgba(200,200,200,.55)', borderDash:[6,6], pointRadius:0, borderWidth:1.5 },
+        { label:'EEB-HT — Hormese (Trub Quente)', data: conc.map(c=>({x:c,y:hormesis(c)})),
+          borderColor:'#D4AF37', backgroundColor:'rgba(212,175,55,.12)',
+          tension:.35, fill:true, pointRadius:0, borderWidth:2.5 },
+        { label:'EEB-BM — Saturação (Bagaço)', data: conc.map(c=>({x:c,y:mm(c)})),
+          borderColor:'#4ade80', backgroundColor:'rgba(74,222,128,.10)',
+          tension:.35, fill:true, pointRadius:0, borderWidth:2.5 },
+        // marcadores dinâmicos dos sliders
+        { label:'Ponto EEB-HT', data:[], showLine:false,
+          pointRadius:8, pointHoverRadius:9, pointBackgroundColor:'#D4AF37',
+          pointBorderColor:'#fff', pointBorderWidth:2 },
+        { label:'Ponto EEB-BM', data:[], showLine:false,
+          pointRadius:8, pointHoverRadius:9, pointBackgroundColor:'#4ade80',
+          pointBorderColor:'#fff', pointBorderWidth:2 },
+        // linhas-guia verticais (posições atuais dos sliders)
+        { label:'Guia HT', data:[], borderWidth:1.5, borderColor:'rgba(212,175,55,.6)',
+          borderDash:[4,4], pointRadius:0, spanGaps:false },
+        { label:'Guia BM', data:[], borderWidth:1.5, borderColor:'rgba(74,222,128,.6)',
+          borderDash:[4,4], pointRadius:0, spanGaps:false }
+      ]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false, animation:{duration:250},
+      interaction:{mode:'nearest', intersect:false},
+      plugins:{
+        legend:{ labels:{ color:'#e7e5e4', font:{size:11}, usePointStyle:true } },
+        tooltip:{
+          backgroundColor:'rgba(20,32,18,.85)', titleColor:'#D4AF37', bodyColor:'#f5f5f4',
+          callbacks:{
+            title: items => 'Concentração: ' + Math.round(items[0].parsed.x) + ' mg/L',
+            label: item => item.dataset.label + ': ' + (item.parsed.y!=null? item.parsed.y.toFixed(3):'—')
+          }
+        }
+      },
+      scales:{
+        x:{ type:'linear', min:0, max:1000,
+            title:{display:true, text:'Concentração (mg/L)', color:'#a8a29e'},
+            ticks:{color:'#a8a29e', maxTicksLimit:11}, grid:{color:'rgba(255,255,255,.06)'} },
+        y:{ title:{display:true, text:'Resposta relativa (biomassa FBA)', color:'#a8a29e'},
+            suggestedMin:0.4, suggestedMax:1.3,
+            ticks:{color:'#a8a29e'}, grid:{color:'rgba(255,255,255,.08)'} }
+      }
+    }
+  });
+}
+
+function updateChartMarkers(){
+  if(!fbaChart) return;                       // Chart.js pode não ter carregado (offline)
+  const htC = +document.getElementById('sliderHT').value;
+  const bmC = +document.getElementById('sliderBM').value;
+  const htV = hormesis(htC), bmV = mm(bmC);
+
+  document.getElementById('htVal').textContent = htC + ' mg/L';
+  document.getElementById('bmVal').textContent = bmC + ' mg/L';
+  document.getElementById('readHT').textContent = htV.toFixed(2);
+  document.getElementById('readBM').textContent = bmV.toFixed(2);
+
+  /* Atualização dinâmica via chart.data.datasets[...] + chart.update():
+     pontos {x,y} exatos na concentração atual de cada slider + linhas-guia verticais */
+  const gTop = Math.max(hormesis(...conc), mm(...conc), 1) * 1.02;
+  const gBot = 0.42;
+  fbaChart.data.datasets[3].data = [{x: htC, y: htV}];
+  fbaChart.data.datasets[4].data = [{x: bmC, y: bmV}];
+  if(fbaChart.data.datasets.length > 6){
+    fbaChart.data.datasets[5].data = [{x: htC, y: gBot}, {x: htC, y: gTop}];
+    fbaChart.data.datasets[6].data = [{x: bmC, y: gBot}, {x: bmC, y: gTop}];
+  }
+
+  // texto interpretativo para a banca
+  const verdict = document.getElementById('verdict');
+  let msg = '';
+  if(htV > 1.02)      msg += '🟢 EEB-HT em faixa ESTIMULATÓRIA (hormese ativa). ';
+  else if(htV < 0.95) msg += '🔴 EEB-HT em faixa FITOTOXICA (inibição). ';
+  else                msg += '⚪ EEB-HT próximo à linha de base. ';
+  msg += bmV > 1.08 ? '🟩 EEB-BM na região de platô saturado (eficiência nutricional máxima).'
+                    : '🟨 EEB-BM na rampa de resposta proporcional à dose.';
+  verdict.textContent = msg;
+
+  fbaChart.update('none');
+}
+
+document.getElementById('sliderHT').addEventListener('input', updateChartMarkers);
+document.getElementById('sliderBM').addEventListener('input', updateChartMarkers);
+document.getElementById('resetSliders').addEventListener('click', ()=>{
+  document.getElementById('sliderHT').value = 45;
+  document.getElementById('sliderBM').value = 250;
+  updateChartMarkers();
+});
+
+/* =====================================================================
+   7. INICIALIZAÇÃO
+===================================================================== */
+/* Hook: pausa vídeos sempre que um slide sai de cena (antes do goTo original) */
+const _goTo = goTo;
+goTo = function(i,d){ pauseAllVideos(); _goTo(i,d); };
+
+window.addEventListener('load', ()=>{
+  buildDots();
+  updateUI();
+
+  /* CORREÇÃO CRÍTICA (Seção 13): o Chart.js é carregado via CDN com `defer`.
+     Aguardamos explicitamente a disponibilidade de `window.Chart` (com leve retry)
+     ANTES de instanciar o gráfico — assim ele nunca fica "quebrado" por ordem de carga. */
+  function initFbaChart(retries){
+    if(typeof Chart !== 'undefined'){
+      buildChart();            // cria fbaChart a partir do canvas #fbaChart
+      updateChartMarkers();    // sincroniza sliders -> datasets -> fbaChart.update()
+    } else if(retries > 0){
+      setTimeout(()=> initFbaChart(retries-1), 250);
+    } else {
+      console.warn('Chart.js não pôde ser carregado (verifique a conexão com o CDN).');
+    }
+  }
+  initFbaChart(12);
+
+  /* Estado inicial dos reveals (fora do primeiro slide ficam ocultos até entrar) */
+  slides.forEach((s,i)=>{
+    if(i!==0){
+      gsap.set(s.querySelectorAll('.reveal,.hyp,.concl,.cron-item'), {opacity:0, y:26});
+    }
+  });
+  animateIn(slides[0]);
+
+  // Marca o plugin ScrollTrigger como registrado (usado p/ possíveis refs externas)
+  ScrollTrigger.refresh();
+});
+</script>
+</body>
+</html>
